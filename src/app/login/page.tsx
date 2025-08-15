@@ -14,8 +14,12 @@ export default function LoginPage() {
       </form>
         <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl">
           Log in
-        </button>      <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
-      <div className="flex gap-1">
+        </button>      
+        <Link href="/forgotpw" className="text-blue-500 hover:underline text-m">
+          Forgotten password?
+        </Link>
+        <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
+        <div className="flex gap-1">
         <span className="text-m"><i>No account?</i></span>
         <Link href="/register" className="text-blue-500 hover:underline text-m">
           <i>Register</i>
