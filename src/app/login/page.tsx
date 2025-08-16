@@ -12,9 +12,11 @@ export default function LoginPage() {
           <input type="text" id="password" className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password"/>
         </div>
       </form>
+      <Link href="/mainpage">
         <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl">
           Log in
         </button>      
+      </Link>
         <Link href="/forgotpw" className="text-blue-500 hover:underline text-m">
           Forgotten password?
         </Link>

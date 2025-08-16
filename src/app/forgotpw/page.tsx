@@ -11,9 +11,11 @@ export default function ForgotPWPage() {
           <input type="text" id="name-email" className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Username/email"/>
         </div>
       </form>
+      <Link href="/getnewpw">
         <button className="bg-[#e24a4a] hover:bg-[#f35b5b] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl">
           Submit
         </button>
+      </Link>
         <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
         <div className="flex gap-1">
         <span className="text-m"><i>Remembered it?</i></span>
