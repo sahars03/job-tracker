@@ -1,6 +1,8 @@
 "use client";
 import { useState, type ChangeEvent } from "react";
+import Link from "next/link";
 
+// interface to define the structure of the form data
 interface FormData {
   company: string;
   jobTitle: string;
@@ -31,10 +33,16 @@ export default function AddNewJobPage() {
     notes: ""
   });
 
+  // handles input changes for text inputs, radio buttons, and checkboxes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const target = e.target as HTMLInputElement; // type assertion
+    // input that triggered the change event
+    const target = e.target as HTMLInputElement;
+    // destructure the target to extract relevant information
     const { id, value, type, checked, name } = target;
+
+    // if the input type is a checkbox, it means that the user is (de)selecting a work setting
     if (type === "checkbox") {
+      // copy of the existing work settings list
       let newWorkSettings = [...formData.workSetting] as string[];
       // if the checkbox is checked, add the value to the workSettings array
       if (checked) {
@@ -42,10 +50,13 @@ export default function AddNewJobPage() {
       // otherwise, remove the value from the array
       } else {
           newWorkSettings = newWorkSettings.filter(setting => setting !== value);
-      } 
+      }
+      // update the formData state with the new work settings list
       setFormData(prev => ({
         ...prev, workSetting: newWorkSettings
       })); 
+    // otherwise, update the formData state with the new value
+    // depending on what information is available, either the id or name will be used as the key for updating
     } else {
       setFormData(prev => ({ 
         ...prev, [id || name]: value
@@ -73,10 +84,12 @@ export default function AddNewJobPage() {
 
   // sets the form to submitted state when the 'save' button is pressed
   const handleSubmit = () => {
+    // if the form has been validated, the formError and isSubmitted states can be updated to reflect this
     if (validateForm()) {
       setFormError(false);
       setIsSubmitted(true);
-      // send data to backend
+      /* TODO: send data to backend */
+    // otherwise, there has been an error
     } else {
       setFormError(true);
     }
@@ -85,8 +98,7 @@ export default function AddNewJobPage() {
   // display depends on if the form information has been submitted
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
-      {!isSubmitted ? ( 
-      <>
+      {!isSubmitted ? ( <>
         <p className="font-sans text-6xl">Create new application</p>
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <form className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
@@ -141,11 +153,15 @@ export default function AddNewJobPage() {
         )}
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>
-      </>
-      ) : (
+      </> ) : (
         <div className="text-center">
-        <p className="font-sans text-6xl">Application saved!</p>
-        <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
+          <p className="font-sans text-6xl">Application saved!</p>
+          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
+          <Link href="/applicationlist">
+            <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+              View applications
+            </button>
+          </Link>
         </div>
       )}
     </div> 
