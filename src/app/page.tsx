@@ -123,8 +123,13 @@ export default function WelcomePage() {
         </button>
         </Link>
         <Link href="/addnewjob">
-        <button className="bg-[#d7551f] hover:bg-[#e8662f] text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+        <button className="bg-[#d7551f] hover:bg-[#e8662f] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
           New job 
+        </button> 
+        </Link>
+        <Link href="/applicationlist">
+        <button className="bg-[#db915f] hover:bg-[#eca26f] text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+          All applications
         </button> 
         </Link>
       </div>

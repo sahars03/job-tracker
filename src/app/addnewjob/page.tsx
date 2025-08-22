@@ -4,8 +4,8 @@ import Link from "next/link";
 
 // interface to define the structure of the form data
 interface FormData {
-  company: string;
   jobTitle: string;
+  company: string;
   location: string;
   jobType: string;
   workSetting: string[];
@@ -22,8 +22,8 @@ export default function AddNewJobPage() {
   const [formError, setFormError] = useState(false);
   // state to manage and hold form data
   const [formData, setFormData] = useState<FormData>({
-    company: "",
     jobTitle: "",
+    company: "",
     location: "",
     jobType: "",
     workSetting: [] as string[],
@@ -68,8 +68,8 @@ export default function AddNewJobPage() {
   const validateForm = () => {
     // list of required fields
     const required = [
-      formData.company,
       formData.jobTitle,
+      formData.company,
       formData.location,
       formData.jobType,
       formData.dateApplied
@@ -103,10 +103,10 @@ export default function AddNewJobPage() {
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <form className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
           <div className="mb-4 flex flex-col gap-2 w-3/4">
-            <label className="flex items-center gap-1">Company<span className="text-red-500">*</span></label>
-            <input type="text" id="company" value={formData.company} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Company"/>
             <label className="flex items-center gap-1">Job title<span className="text-red-500">*</span></label>
             <input type="text" id="jobTitle" value={formData.jobTitle} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Job title"/>
+            <label className="flex items-center gap-1">Company<span className="text-red-500">*</span></label>
+            <input type="text" id="company" value={formData.company} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Company"/>
             <label className="flex items-center gap-1">Location<span className="text-red-500">*</span></label>
             <input type="text" id="location" value={formData.location} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Location"/>
             <label className="flex items-center gap-1">Job type<span className="text-red-500">*</span></label>
