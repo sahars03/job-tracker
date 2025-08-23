@@ -14,11 +14,12 @@ interface JobApplication {
   notes: string;
 }
 
+const str = "This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality.";
 // mock data for designing the table until linked with backend
 const mockData: JobApplication[] = [
-  { id: 1, jobTitle: "Frontend Engineer", company: "OpenAI", location: "Remote", jobType: "full-time", workSetting: ["remote"], dateApplied: "2025-08-10", status: "Applied", stageReached: "Application", notes: ""},
-  { id: 2, jobTitle: "Backend Engineer", company: "Google", location: "London", jobType: "full-time", workSetting: ["hybrid, in-person"], dateApplied: "2025-08-05", status: "Applied", stageReached: "Application", notes: ""},
-  { id: 3, jobTitle: "Fullstack Developer", company: "Amazon", location: "Bristol", jobType: "part-time", workSetting: ["in-person"], dateApplied: "2025-07-28", status: "Offer", stageReached: "Interview", notes: ""},
+  { id: 1, jobTitle: "Frontend Engineer", company: "OpenAI", location: "Remote", jobType: "Full-time", workSetting: ["Remote"], dateApplied: "2025-08-10", status: "Applied", stageReached: "Application", notes: ""},
+  { id: 2, jobTitle: "Backend Engineer", company: "Google", location: "London", jobType: "Full-time", workSetting: ["Hybrid", "In-person"], dateApplied: "2025-08-05", status: "Applied", stageReached: "Application", notes: str},
+  { id: 3, jobTitle: "Fullstack Developer", company: "Amazon", location: "Bristol", jobType: "Part-time", workSetting: ["In-person"], dateApplied: "2025-07-28", status: "Offer", stageReached: "Interview", notes: ""},
 ];
 
 // for simulating when there are no applications, comment out the above mockData and uncomment the line below
@@ -37,8 +38,12 @@ export default function ApplicationListPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Setting</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stage Reached</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-300">
@@ -48,22 +53,37 @@ export default function ApplicationListPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.company}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.location}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(app.dateApplied).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                       {app.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(app.dateApplied).toLocaleDateString()}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.jobType}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.workSetting.join("/")}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.stageReached}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 relative group">
+                    <div className="w-[200px] overflow-hidden text-ellipsis whitespace-nowrap cursor-default">
+                      {app.notes}
+                      {app.notes.length > 0 && (
+                        <div className="absolute hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg z-10 left-0 w-[300px] whitespace-pre-wrap cursor-default overflow-visible">
+                          {app.notes}
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <div>
           <Link href="/addnewjob">
             <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
               Add new application
             </button>
           </Link>
+          </div>
         </div>
         </>
       ) : (
