@@ -15,6 +15,7 @@ interface JobApplication {
 }
 
 const str = "This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality.";
+
 // mock data for designing the table until linked with backend
 const mockData: JobApplication[] = [
   { id: 1, jobTitle: "Frontend Engineer", company: "OpenAI", location: "Remote", jobType: "Full-time", workSetting: ["Remote"], dateApplied: "2025-08-10", status: "Applied", stageReached: "Application", notes: ""},
@@ -31,7 +32,7 @@ export default function ApplicationListPage() {
       <p className="font-sans text-6xl">Your Applications</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
       {mockData.length > 0 ? ( <>
-       <div className="w-full items-center justify-center max-w-6xl overflow-x-auto">
+       <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-50">
               <tr>
@@ -56,9 +57,10 @@ export default function ApplicationListPage() {
                     {new Date(app.dateApplied).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    {/*<span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                       {app.status}
-                    </span>
+                    </span>*/  /* this looks quite nice but i think it should be used in a different place instead */}
+                    {app.status}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.jobType}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.workSetting.join("/")}</td>
@@ -67,7 +69,7 @@ export default function ApplicationListPage() {
                     <div className="w-[200px] overflow-hidden text-ellipsis whitespace-nowrap cursor-default">
                       {app.notes}
                       {app.notes.length > 0 && (
-                        <div className="absolute hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg z-10 left-0 w-[300px] whitespace-pre-wrap cursor-default overflow-visible">
+                        <div className="fixed hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg z-50 w-[300px] whitespace-pre-wrap cursor-default">
                           {app.notes}
                         </div>
                       )}
@@ -77,13 +79,13 @@ export default function ApplicationListPage() {
               ))}
             </tbody>
           </table>
-          <div>
-          <Link href="/addnewjob">
-            <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-              Add new application
-            </button>
-          </Link>
-          </div>
+        </div>
+        <div>
+        <Link href="/addnewjob">
+          <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+            Add new application
+          </button>
+        </Link>
         </div>
         </>
       ) : (
