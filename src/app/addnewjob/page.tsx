@@ -1,19 +1,7 @@
 "use client";
 import { useState, type ChangeEvent } from "react";
 import Link from "next/link";
-
-// interface to define the structure of the form data
-interface FormData {
-  jobTitle: string;
-  company: string;
-  location: string;
-  jobType: string;
-  workSetting: string[];
-  dateApplied: string;
-  status: string;
-  stageReached: string;
-  notes: string;
-}
+import { JobApplication } from "@/types/JobApplication";
 
 export default function AddNewJobPage() {
   // state to manage form submission
@@ -21,7 +9,7 @@ export default function AddNewJobPage() {
   // state to manage form error
   const [formError, setFormError] = useState(false);
   // state to manage and hold form data
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<JobApplication>({
     jobTitle: "",
     company: "",
     location: "",
