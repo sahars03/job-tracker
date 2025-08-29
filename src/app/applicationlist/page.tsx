@@ -4,31 +4,26 @@ import { useState } from "react";
 import ApplicationModal from "@/components/ApplicationModal";
 import { JobApplication } from "@/types/JobApplication";
 
-// same information from job application form, except with the addition of an id field to uniquely identify each application
-interface thisJobApplication extends JobApplication {
-  id: number;
-}
-
 export default function ApplicationListPage() {
 
   // state for modal (null when no application is open)
-  const [selectedApp, setSelectedApp] = useState<thisJobApplication | null>(null);
+  const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const str = "This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality. This is a sample string to demonstrate the character limit functionality.";
 
   // mock data for designing the table until linked with backend
-  const mockData: thisJobApplication[] = [
+  const mockData: JobApplication[] = [
     { id: 1, jobTitle: "Frontend Engineer", company: "OpenAI", location: "Remote", jobType: "Full-time", workSetting: ["Remote"], dateApplied: "2025-08-10", status: "Applied", stageReached: "Application", notes: ""},
     { id: 2, jobTitle: "Backend Engineer", company: "Google", location: "London", jobType: "Full-time", workSetting: ["Hybrid", "In-person"], dateApplied: "2025-08-05", status: "Applied", stageReached: "Application", notes: str},
     { id: 3, jobTitle: "Fullstack Developer", company: "Amazon", location: "Bristol", jobType: "Part-time", workSetting: ["In-person"], dateApplied: "2025-07-28", status: "Offer", stageReached: "Interview", notes: ""},
   ];
 
   // for simulating when there are no applications, comment out the above mockData and uncomment the line below
-  // const mockData: thisJobApplication[] = [];
+  // const mockData: JobApplication[] = [];
 
   // opens modal
-  const openModal = (app: thisJobApplication) => {
+  const openModal = (app: JobApplication) => {
     // select the application and change state to show that a modal is open
     setSelectedApp(app);
     setIsOpen(true);

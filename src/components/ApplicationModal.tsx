@@ -1,13 +1,24 @@
 import { JobApplication } from "@/types/JobApplication";
+import { useState } from "react";
 
 interface ApplicationModalProps {
   isOpen: boolean;
   selectedApp: JobApplication;
   onClose: () => void;
+  onDelete?: (id: number) => void;
 }
 
-  const ApplicationModal = ({ isOpen, selectedApp, onClose }: ApplicationModalProps) => {
+  const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: ApplicationModalProps) => {
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   if (!isOpen || !selectedApp) return null;
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(selectedApp.id);
+      onClose();
+    }
+  };
 
   return (
       <div className="fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
@@ -32,10 +43,35 @@ interface ApplicationModalProps {
           <button className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
             Edit
           </button>
-          <button className="bg-[#d7551f] hover:bg-[#e8662f] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+          <button onClick={() => setShowDeleteConfirm(true)} className="bg-[#d7551f] hover:bg-[#e8662f] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
             Delete
           </button>
           </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirm && (
+        <div className="fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+              <h3 className="font-sans font-semibold text-2xl text-center mb-3">Confirm Delete</h3>
+              <p className="font-sans text-center text-lg mb-2">Are you sure you want to delete this application?</p>
+            <div className="flex flex-row justify-center gap-4 mt-2">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="bg-[#d7551f] hover:bg-[#e8662f] px-4 py-2 text-white rounded "
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         </div>
       </div>
   );
