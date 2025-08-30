@@ -8,7 +8,7 @@ interface ApplicationModalProps {
   onDelete?: (id: number) => void;
 }
 
-  const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: ApplicationModalProps) => {
+const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: ApplicationModalProps) => {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   if (!isOpen || !selectedApp) return null;
