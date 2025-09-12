@@ -9,7 +9,9 @@ export default function AddNewJobPage() {
   // state to manage form error
   const [formError, setFormError] = useState(false);
   // state to manage and hold form data
+  // TODO: replace with actual ID 
   const [formData, setFormData] = useState<JobApplication>({
+    id: 0,
     jobTitle: "",
     company: "",
     location: "",
