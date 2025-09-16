@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [formError, setFormError] = useState(false);
   const [pwError, setPwError] = useState(false);
   const [retyped, setRetyped] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -41,11 +42,12 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(false);
+    setPwError(false);
     
     // if the form has been validated, the formError state can be updated to reflect this
     if (validateForm()) {
-      setFormError(false);
-      setPwError(false);
+      setIsSubmitted(true);
       // const res = await fetch("http://localhost:5000/api/register", {
       //   method: "POST",
       //   headers: { "Content-Type": "application/json" },
@@ -57,24 +59,24 @@ export default function RegisterPage() {
       // } else {
       //   alert("Something went wrong while trying to register.");
       // }
-      window.location.href = "/login";
+      // window.location.href = "/login";
 
     // otherwise, there has been an error
     } else {
       if (!validatePassword()) {
         setPwError(true);
       }
-
       setFormError(true);
 
-      if (pwError && formError) {
-        alert("message")
-      }
+      // if (pwError && formError) {
+      //   alert("message")
+      // }
     }
   };
 
   return (
     <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
+      {!isSubmitted ? ( <>
       <p className="font-sans text-6xl text-center sm:text-left">Register</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
       <p className="mb-6 text-xl">Fill out the form below to register.</p>
@@ -82,8 +84,8 @@ export default function RegisterPage() {
         <div className="mb-4 flex flex-col gap-2 w-3/4">
           <input type="text" id="username" value={formData.username} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Username"/>
           <input type="text" id="email" required value={formData.email} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Email*"/>
-          <input type="text" id="password" required value={formData.password} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password*"/>
-          <input type="text" id="retype" required value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password*"/>
+          <input type="password" id="password" required value={formData.password} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password*"/>
+          <input type="password" id="retype" required value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password*"/>
         </div>
         <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Register</button>
         {pwError && (
@@ -101,6 +103,17 @@ export default function RegisterPage() {
           <i>Log in</i>
         </Link>
       </div>
+      </> ) : (
+        <div className="text-center">
+          <p className="font-sans text-6xl">Registration successful!</p>
+          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
+          <Link href="/login">
+            <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+              Log in
+            </button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
