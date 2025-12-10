@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "types": ["node", "pg"],
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,8 +19,9 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",  // i added this 10-12-2025
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"] // originally ./src/* but src is not the real root
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

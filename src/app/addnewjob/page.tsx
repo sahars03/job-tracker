@@ -85,6 +85,35 @@ export default function AddNewJobPage() {
     }
   };
   
+/*
+// needs to be updated for my own form but try this first
+const handleSubmit = async () => {
+  if (validateForm()) {
+    setFormError(false);
+    setIsSubmitted(true);
+
+    try {
+      await fetch("http://localhost:5000/api/form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      console.log("Form data saved successfully!");
+
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setFormError(true);
+    }
+  } else {
+    setFormError(true);
+  }
+};
+*/
+
+
+
+
   // display depends on if the form information has been submitted
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">

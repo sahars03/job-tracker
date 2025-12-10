@@ -25,6 +25,8 @@ export default function RegisterPage() {
   };
 
   const validatePassword = () => {
+    console.log(formData.password);
+    console.log(`${retyped}???`);
     return formData.password === retyped
   };
 
@@ -47,23 +49,43 @@ export default function RegisterPage() {
     
     // if the form has been validated, the formError state can be updated to reflect this
     if (validateForm()) {
-      setIsSubmitted(true);
-      // const res = await fetch("http://localhost:5000/api/register", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // }); TODO...
+      try {
+        console.log("fetch");
+          const res = await fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          });
 
-      // if (res.ok) {
-      //   alert("Registration successful!");
-      // } else {
-      //   alert("Something went wrong while trying to register.");
-      // }
-      // window.location.href = "/login";
+          if (!res.ok) {
+            console.log("oops");
+          }
+
+          if (res.ok) {
+            setIsSubmitted(true);
+            alert("It worked!");
+          } else {
+            let data;
+            try {
+              data = await res.json();
+            } catch (jsonErr) {
+              console.error("Could not parse JSON:", jsonErr);
+              data = { error: "Unknown error" };
+            }
+            ///do i need these lines
+            //console.error(data.error);
+            //setFormError(true);
+          }
+        } catch (err) {
+          console.error("Error submitting form:", err);
+          setFormError(true);
+        }
 
     // otherwise, there has been an error
     } else {
+      console.log("mistake");
       if (!validatePassword()) {
+        console.log("invalid pw");
         setPwError(true);
       }
       setFormError(true);
