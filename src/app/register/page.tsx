@@ -25,8 +25,7 @@ export default function RegisterPage() {
   };
 
   const validatePassword = () => {
-    console.log(formData.password);
-    console.log(`${retyped}???`);
+    // validate other things as well e.g. if there is already a user with the given username/email
     return formData.password === retyped
   };
 
@@ -50,16 +49,11 @@ export default function RegisterPage() {
     // if the form has been validated, the formError state can be updated to reflect this
     if (validateForm()) {
       try {
-        console.log("fetch");
           const res = await fetch("/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
           });
-
-          if (!res.ok) {
-            console.log("oops");
-          }
 
           if (res.ok) {
             setIsSubmitted(true);
