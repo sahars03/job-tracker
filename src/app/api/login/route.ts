@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/backend/db";
 import bcrypt from "bcrypt";
+import { signToken } from "@/src/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -30,6 +31,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const token = signToken(user.id);
+    const response = NextResponse.json({ success: true });
+
+    response.cookies.set("auth", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
     // login successful — return the user ID
     return NextResponse.json(
       { message: "Login successful", userId: user.id },
@@ -44,3 +56,6 @@ export async function POST(req: Request) {
     );
   }
 }
+
+
+/*******/

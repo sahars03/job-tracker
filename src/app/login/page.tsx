@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     un_email: "",
@@ -54,7 +57,7 @@ export default function LoginPage() {
 
           if (res.ok) {
             setIsSubmitted(true);
-            alert("It worked!");
+            router.push("/mainpage");
           } else {
             let data;
             try {
@@ -120,11 +123,9 @@ export default function LoginPage() {
         <div className="text-center">
           <p className="font-sans text-6xl">Login successful!</p>
           <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-          <Link href="/mainpage">
             <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
               Main page
             </button>
-          </Link>
         </div>
       )}
     </div>
