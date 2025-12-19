@@ -1,4 +1,4 @@
-import { JobApplication } from "@/types/JobApplication";
+import { JobApplication } from "@/src/types/JobApplication";
 import { useState } from "react";
 
 interface ApplicationModalProps {

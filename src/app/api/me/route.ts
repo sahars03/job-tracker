@@ -1,11 +1,10 @@
-// src/app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 export async function GET() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get("auth")?.value; 
 
   if (!token) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -13,11 +12,13 @@ export async function GET() {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: number;
       username: string;
     };
 
     return NextResponse.json({
       loggedIn: true,
+      userId: decoded.userId,
       username: decoded.username,
     });
   } catch {

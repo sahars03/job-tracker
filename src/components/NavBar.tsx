@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const router = useRouter();
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("../api/auth/me", {
+        const res = await fetch("api/me", {
           credentials: "include", // IMPORTANT for cookies
         });
 
@@ -60,7 +63,6 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <span className="text-sm italic">Hi, {username}</span>
               <Link href="/account" className="hover:text-blue-300">
                 Account
               </Link>
@@ -69,6 +71,8 @@ const Navbar = () => {
                   await fetch("/api/logout", { method: "POST" });
                   setLoggedIn(false);
                   setUsername(null);
+                  console.log("byeee");
+                  router.push("/login");
                 }}
                 className="hover:text-red-300"
               >
