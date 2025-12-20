@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function LoginPage() {
-
+  const { loggedIn, loading, refreshAuth } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -16,7 +17,6 @@ export default function LoginPage() {
   const [nameError, setNameError] = useState(false);
   const [formError, setFormError] = useState(false);
   const [pwError, setPwError] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // update the form inputs every time they are changed
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +56,7 @@ export default function LoginPage() {
           });
 
           if (res.ok) {
-            setIsSubmitted(true);
+            await refreshAuth();
             router.push("/mainpage");
           } else {
             let data;
@@ -87,7 +87,6 @@ export default function LoginPage() {
 
   return (
     <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
-    {!isSubmitted ? ( <>
       <p className="font-sans text-6xl text-center sm:text-left">Log in</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
       <p className="mb-6 text-xl">Fill out the form below to log in.</p>
@@ -119,15 +118,6 @@ export default function LoginPage() {
           <i>Register</i>
         </Link>
       </div>
-      </> ) : (
-        <div className="text-center">
-          <p className="font-sans text-6xl">Login successful!</p>
-          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-            <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-              Main page
-            </button>
-        </div>
-      )}
     </div>
   );
 }

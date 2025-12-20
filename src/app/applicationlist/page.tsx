@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import ApplicationModal from "@/components/ApplicationModal";
-import { JobApplication } from "@/types/JobApplication";
+import ApplicationModal from "@/src/components/ApplicationModal";
+import { JobApplication } from "@/src/types/JobApplication";
 
 export default function ApplicationListPage() {
 
