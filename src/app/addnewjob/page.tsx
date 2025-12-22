@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ChangeEvent } from "react";
 import Link from "next/link";
-import { JobApplication } from "@/types/JobApplication";
+import { JobApplication } from "@/src/types/JobApplication";
 
 export default function AddNewJobPage() {
   // state to manage form submission
@@ -72,47 +72,31 @@ export default function AddNewJobPage() {
     return required.every(field => field !== "") && isWorkSettingSelected;
   };
 
-  // sets the form to submitted state when the 'save' button is pressed
-  const handleSubmit = () => {
-    // if the form has been validated, the formError and isSubmitted states can be updated to reflect this
-    if (validateForm()) {
-      setFormError(false);
-      setIsSubmitted(true);
-      /* TODO: send data to backend */
-    // otherwise, there has been an error
-    } else {
+  const handleSubmit = async () => {
+    if (!validateForm()) {
       setFormError(true);
+      return;
     }
-  };
-  
-/*
-// needs to be updated for my own form but try this first
-const handleSubmit = async () => {
-  if (validateForm()) {
-    setFormError(false);
-    setIsSubmitted(true);
 
     try {
-      await fetch("http://localhost:5000/api/form", {
+      const res = await fetch("/api/addnewjob", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
-      console.log("Form data saved successfully!");
+      if (!res.ok) {
+        throw new Error("Failed to save application");
+      }
 
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      setFormError(false);
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error(err);
       setFormError(true);
     }
-  } else {
-    setFormError(true);
-  }
-};
-*/
-
-
-
+  };
 
   // display depends on if the form information has been submitted
   return (
