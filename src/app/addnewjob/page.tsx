@@ -24,7 +24,7 @@ export default function AddNewJobPage() {
   });
 
   // handles input changes for text inputs, radio buttons, and checkboxes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // input that triggered the change event
     const target = e.target as HTMLInputElement;
     // destructure the target to extract relevant information

@@ -1,10 +1,35 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ApplicationModal from "@/src/components/ApplicationModal";
 import { JobApplication } from "@/src/types/JobApplication";
 
 export default function ApplicationListPage() {
+
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+
+  useEffect(() => {
+    const getApps = async () => {
+    try {
+        const res = await fetch("/api/applicationlist", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) {
+          console.log("mistake");
+        }
+        
+        const data = await res.json();
+        setApplications(data.applications);
+
+      } catch (err) {
+        console.log("oops");
+      }
+    };
+    
+    getApps();
+  }, []);
 
   // state for modal (null when no application is open)
   const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
@@ -41,7 +66,7 @@ export default function ApplicationListPage() {
       {/* main page */}
       <p className="font-sans text-6xl">Your Applications</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-      {mockData.length > 0 ? ( <>
+      {applications.length > 0 ? ( <>
        <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-50">
@@ -58,7 +83,7 @@ export default function ApplicationListPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-300">
-              {mockData.map((app) => (
+              {applications.map((app) => (
                 <tr key={app.id} className="hover:bg-gray-50" onClick={() => openModal(app)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{app.jobTitle}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.company}</td>
