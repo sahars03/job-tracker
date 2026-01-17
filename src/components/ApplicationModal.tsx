@@ -1,5 +1,6 @@
 import { JobApplication } from "@/src/types/JobApplication";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface ApplicationModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface ApplicationModalProps {
 }
 
 const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: ApplicationModalProps) => {
+  const router = useRouter();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   if (!isOpen || !selectedApp) return null;
@@ -40,9 +42,13 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
           <p className="mt-2"><span className="font-sans font-semibold">Notes:</span></p>
           <p className="whitespace-pre-wrap font-sans">{selectedApp.notes || "No additional notes."}</p>
           <div className="flex flex-row justify-center mb-3 gap-4 mt-6">
-          <button className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-            Edit
-          </button>
+            <button onClick={() => {
+              onClose();
+              router.push(`/editjob/${selectedApp.id}/`);
+            }}
+            className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+              Edit
+            </button>
           <button onClick={() => setShowDeleteConfirm(true)} className="bg-[#d7551f] hover:bg-[#e8662f] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
             Delete
           </button>
