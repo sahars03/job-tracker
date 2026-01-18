@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, type ChangeEvent } from "react";
 import Link from "next/link";
 import { JobApplication } from "@/src/types/JobApplication";
@@ -8,6 +8,7 @@ import { JobApplication } from "@/src/types/JobApplication";
 export default function EditJobPage() {
   const params = useParams();
   const id = Number(params.id);
+  const router = useRouter();
 
   // state to manage form submission
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -26,7 +27,6 @@ export default function EditJobPage() {
     stageReached: "",
     notes: ""
   });
-  //const [loading, setLoading] = useState(true);
 
   const formatDateForInput = (isoDate: string) => {
     return isoDate.split("T")[0];
@@ -47,7 +47,7 @@ export default function EditJobPage() {
       setFormData({
         ...data,
         dateApplied: formatDateForInput(data.dateApplied),
-      });      //setLoading(false);
+      });
     };
 
     fetchJob();
@@ -109,9 +109,9 @@ export default function EditJobPage() {
     }
 
     try {
-      // TODO: update this for editing application
-      const res = await fetch("/api/addnewjob", {
-        method: "POST",
+      console.log("attempting...");
+      const res = await fetch(`/api/application/${params.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(formData),
@@ -123,6 +123,8 @@ export default function EditJobPage() {
 
       setFormError(false);
       setIsSubmitted(true);
+      router.push("/applicationlist?updated=true");
+      
     } catch (err) {
       console.error(err);
       setFormError(true);

@@ -3,11 +3,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import ApplicationModal from "@/src/components/ApplicationModal";
 import { JobApplication } from "@/src/types/JobApplication";
+import { useSearchParams, useRouter } from "next/navigation";
+
 
 export default function ApplicationListPage() {
 
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [appId, setAppId] = useState(0);
+  const searchParams = useSearchParams();
+  const updated = searchParams.get("updated");
+  const router = useRouter();
+
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const getApps = async () => {
@@ -33,6 +40,19 @@ export default function ApplicationListPage() {
     getApps();
   }, []);
 
+  useEffect(() => {
+    if (updated === "true") {
+      setShowSuccess(true);
+
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        router.replace("/applicationlist");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [updated]);
+
   // state for modal (null when no application is open)
   const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +73,11 @@ export default function ApplicationListPage() {
 
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
+      {showSuccess && (
+        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+          Application updated successfully
+        </div>
+      )}
       {/* main page */}
       <p className="font-sans text-6xl">Your Applications</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
