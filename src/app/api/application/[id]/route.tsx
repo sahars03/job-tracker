@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: number } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -18,6 +18,16 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
+    const applicationId = Number(id);
+
+    if (isNaN(applicationId)) {
+      return NextResponse.json(
+        { error: "Invalid ID" },
+        { status: 400 }
+      );
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
@@ -26,7 +36,7 @@ export async function GET(
       `SELECT *
        FROM applications
        WHERE id = $1 AND user_id = $2`,
-      [params.id, decoded.userId]
+      [applicationId, decoded.userId]
     );
 
     if (result.rows.length === 0) {
@@ -58,7 +68,7 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -68,15 +78,19 @@ export async function PUT(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const { id } = await params;
+    const applicationId = Number(id);
+
+    if (isNaN(applicationId)) {
+      return NextResponse.json(
+        { error: "Invalid ID" },
+        { status: 400 }
+      );
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
-
-    const applicationId = Number(params.id);
-
-    if (isNaN(applicationId)) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
-    }
 
     const {
       jobTitle,
@@ -132,5 +146,51 @@ export async function PUT(
   } catch (err) {
     console.error("Update error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const applicationId = Number(id);
+
+    if (isNaN(applicationId)) {
+      return NextResponse.json(
+        { error: "Invalid ID" },
+        { status: 400 }
+      );
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: number;
+    };
+
+    await pool.query(
+      `DELETE FROM applications
+       WHERE id = $1 AND user_id = $2`,
+      [applicationId, decoded.userId]
+    );
+
+    return NextResponse.json(
+      { message: "Application deleted" },
+      { status: 200 }
+    );
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    return NextResponse.json(
+      { error: "Server error" },
+      { status: 500 }
+    );
   }
 }

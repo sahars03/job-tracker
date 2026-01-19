@@ -109,7 +109,6 @@ export default function EditJobPage() {
     }
 
     try {
-      console.log("attempting...");
       const res = await fetch(`/api/application/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -123,7 +122,7 @@ export default function EditJobPage() {
 
       setFormError(false);
       setIsSubmitted(true);
-      router.push("/applicationlist?updated=true");
+      router.push("/applicationlist?edited=true");
       
     } catch (err) {
       console.error(err);

@@ -13,12 +13,25 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
   const router = useRouter();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  if (!isOpen || !selectedApp) return null;
+  if (!isOpen || !selectedApp) return null
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(selectedApp.id);
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/application/${selectedApp.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete application");
+      }
+
+      setShowDeleteConfirm(false);
       onClose();
+      router.push("/applicationlist?deleted=true");
+
+    } catch (err) {
+      console.error("Delete failed:", err);
     }
   };
 

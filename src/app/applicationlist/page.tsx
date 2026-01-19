@@ -5,16 +5,17 @@ import ApplicationModal from "@/src/components/ApplicationModal";
 import { JobApplication } from "@/src/types/JobApplication";
 import { useSearchParams, useRouter } from "next/navigation";
 
-
 export default function ApplicationListPage() {
 
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [appId, setAppId] = useState(0);
   const searchParams = useSearchParams();
-  const updated = searchParams.get("updated");
+  const edited = searchParams.get("edited") || false;
+  const deleted = searchParams.get("deleted") || false;
   const router = useRouter();
 
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showEditSuccess, setShowEditSuccess] = useState(false);
+  const [showDelSuccess, setShowDelSuccess] = useState(false);
 
   useEffect(() => {
     const getApps = async () => {
@@ -38,20 +39,34 @@ export default function ApplicationListPage() {
     };
     
     getApps();
-  }, []);
+  }, [deleted]);
 
   useEffect(() => {
-    if (updated === "true") {
-      setShowSuccess(true);
+    if (edited === "true") {
+      setShowEditSuccess(true);
 
       const timer = setTimeout(() => {
-        setShowSuccess(false);
+        setShowEditSuccess(false);
         router.replace("/applicationlist");
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [updated]);
+  }, [edited]);
+
+  useEffect(() => {
+    if (deleted === "true") {
+      setShowDelSuccess(true);
+
+      const timer = setTimeout(() => {
+        setShowDelSuccess(false);
+        router.replace("/applicationlist");
+        router.refresh();
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [deleted]);
 
   // state for modal (null when no application is open)
   const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
@@ -73,9 +88,14 @@ export default function ApplicationListPage() {
 
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
-      {showSuccess && (
+      {showEditSuccess && (
         <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Application updated successfully
+        </div>
+      )}
+      {showDelSuccess && (
+        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+          Application deleted successfully
         </div>
       )}
       {/* main page */}

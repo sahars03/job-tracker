@@ -30,7 +30,7 @@ const Navbar = () => {
               <button
                 onClick={async () => {
                   await fetch("/api/logout", { method: "POST" });
-                  await refreshAuth(); // 🔥 update immediately
+                  await refreshAuth();
                   router.push("/login");
                 }}
               >
