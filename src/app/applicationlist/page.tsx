@@ -13,9 +13,29 @@ export default function ApplicationListPage() {
   const edited = searchParams.get("edited") || false;
   const deleted = searchParams.get("deleted") || false;
   const router = useRouter();
+  const [sortBy, setSortBy] = useState("dateDesc");
 
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
+
+  const sortedApplications = [...applications].sort((a, b) => {
+    switch (sortBy) {
+      case "dateAsc":
+        return new Date(a.dateApplied).getTime() - new Date(b.dateApplied).getTime();
+
+      case "dateDesc":
+        return new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime();
+
+      case "company":
+        return a.company.localeCompare(b.company);
+
+      case "status":
+        return a.status.localeCompare(b.status);
+
+      default:
+        return 0;
+    }
+  });
 
   useEffect(() => {
     const getApps = async () => {
@@ -103,6 +123,24 @@ export default function ApplicationListPage() {
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
       {applications.length > 0 ? ( <>
        <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
+          <div className="flex justify-end w-full max-w-[90%] mb-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-600">
+                Sort by:
+              </label>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+              >
+                <option value="dateDesc">Date applied (newest)</option>
+                <option value="dateAsc">Date applied (oldest)</option>
+                <option value="company">Company</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+          </div>
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-50">
               <tr>
@@ -118,7 +156,7 @@ export default function ApplicationListPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-300">
-              {applications.map((app) => (
+              {sortedApplications.map((app) => (
                 <tr key={app.id} className="hover:bg-gray-50" onClick={() => openModal(app)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{app.jobTitle}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.company}</td>
