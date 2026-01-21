@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ApplicationModal from "@/src/components/ApplicationModal";
 import { JobApplication } from "@/src/types/JobApplication";
 import { useSearchParams, useRouter } from "next/navigation";
+import FilterModal from "@/src/components/FilterModal";
 
 export default function ApplicationListPage() {
 
@@ -18,7 +19,48 @@ export default function ApplicationListPage() {
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
 
-  const sortedApplications = [...applications].sort((a, b) => {
+  type WorkSettingFilter = {
+    inperson: boolean;
+    hybrid: boolean;
+    remote: boolean;
+  };
+
+  const [filters, setFilters] = useState<WorkSettingFilter>({
+    inperson: false,
+    hybrid: false,
+    remote: false,
+  });
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const toggleFilter = (key: keyof typeof filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      inperson: false,
+      hybrid: false,
+      remote: false,
+    });
+  };
+
+  const filteredApplications = applications.filter((app) => {
+    const activeFilters = Object.entries(filters)
+      .filter(([, value]) => value)
+      .map(([key]) => key);
+
+    if (activeFilters.length === 0) return true;
+
+    return app.workSetting.some((setting) =>
+      activeFilters.includes(setting.toLowerCase())
+    );
+  });
+
+  const sortedApplications = [...filteredApplications].sort((a, b) => {
     switch (sortBy) {
       case "dateAsc":
         return new Date(a.dateApplied).getTime() - new Date(b.dateApplied).getTime();
@@ -36,7 +78,7 @@ export default function ApplicationListPage() {
         return 0;
     }
   });
-
+  
   useEffect(() => {
     const getApps = async () => {
     try {
@@ -140,6 +182,14 @@ export default function ApplicationListPage() {
                 <option value="status">Status</option>
               </select>
             </div>
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="border px-4 py-2 rounded hover:bg-gray-100"
+              >
+                Filter
+              </button>
+            </div>
           </div>
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-50">
@@ -210,6 +260,13 @@ export default function ApplicationListPage() {
           isOpen={isOpen}
           selectedApp={selectedApp!}
           onClose={closeModal}
+        />
+        <FilterModal
+          isOpen={isFilterOpen}
+          filters={filters}
+          onChange={toggleFilter}
+          onClose={() => setIsFilterOpen(false)}
+          onClear={clearFilters}
         />
     </div>
   );

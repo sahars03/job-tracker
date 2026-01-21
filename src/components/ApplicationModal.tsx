@@ -40,7 +40,7 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
         <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl">
           <button onClick={onClose} className="absolute text-xl top-1 right-2 text-gray-500 hover:text-gray-700">
             &times;
-          </button>
+          </button> 
           <div className="flex items-center flex-col justify-center">
             <p className="font-sans font-semibold text-4xl text-center mb-3">{selectedApp.jobTitle} at {selectedApp.company}</p>
             <p className="font-sans text-xl italic">Status: {selectedApp.status}</p>
