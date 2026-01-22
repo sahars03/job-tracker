@@ -25,7 +25,8 @@ export default function FilterModal({
   /** 
    * 
    * 
-   * 
+   *           <div className="mb-4 flex flex-col gap-2 w-3/4">
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
    * 
    */
@@ -37,8 +38,8 @@ export default function FilterModal({
           </button>
         <p className="font-sans font-semibold text-4xl text-center mb-3">Filter applications</p>
         <div className="h-[2px] bg-gray-300 w-full my-3"></div>
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
-          <div>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+              <div className="flex flex-col gap-2">
               <label className="flex items-center gap-1">Job title</label>
               <input type="text" id="jobTitle" required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Job title"/>
               <label className="flex items-center gap-1">Company</label>
@@ -56,7 +57,7 @@ export default function FilterModal({
                           Part-time
                         </label>
                       </div>
-              <label className="flex items-center gap-1">Work setting</label>
+              <label className="flex items-center">Work setting</label>
                         <div className="flex items-center gap-4">
                           {(["inperson", "hybrid", "remote"] as const).map((key) => (
                             <label key={key} className="flex items-center gap-2">
@@ -70,13 +71,14 @@ export default function FilterModal({
                           ))}
                         </div>
               </div>
-              <div>
-              <label className="flex items-center gap-1">Date applied</label>
-                      <div className="flex-col items-center gap-5">
+              <div className="flex flex-col gap-2">
+              <label className="flex items-center">Date applied</label>
+                      <div className="flex-col items-center">
                                       <div className="flex items-center gap-4">
                                         <label className="flex items-center gap-1">From</label>
                                         <input type="date" id="dateApplied" className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Date applied"/>
                                       </div>
+
                                 <div className="flex items-center gap-9">
                                   <label className="flex items-center gap-1">To</label>
                                   <input type="date" id="dateApplied" className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Date applied"/>
