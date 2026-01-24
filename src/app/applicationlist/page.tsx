@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import ApplicationModal from "@/src/components/ApplicationModal";
 import { JobApplication } from "@/src/types/JobApplication";
+import { ApplicationFilters } from "@/src/types/ApplicationFilters";
 import { useSearchParams, useRouter } from "next/navigation";
 import FilterModal from "@/src/components/FilterModal";
 
@@ -19,48 +20,10 @@ export default function ApplicationListPage() {
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
 
-  type WorkSettingFilter = {
-    inperson: boolean;
-    hybrid: boolean;
-    remote: boolean;
-  };
+  const [filters, setFilters] = useState<ApplicationFilters | null>(null);
+  const [showFilter, setShowFilter] = useState(false);
 
-  const [filters, setFilters] = useState<WorkSettingFilter>({
-    inperson: false,
-    hybrid: false,
-    remote: false,
-  });
-
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  const toggleFilter = (key: keyof typeof filters) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      inperson: false,
-      hybrid: false,
-      remote: false,
-    });
-  };
-
-  const filteredApplications = applications.filter((app) => {
-    const activeFilters = Object.entries(filters)
-      .filter(([, value]) => value)
-      .map(([key]) => key);
-
-    if (activeFilters.length === 0) return true;
-
-    return app.workSetting.some((setting) =>
-      activeFilters.includes(setting.toLowerCase())
-    );
-  });
-
-  const sortedApplications = [...filteredApplications].sort((a, b) => {
+  const sortedApplications = [...applications].sort((a, b) => {
     switch (sortBy) {
       case "dateAsc":
         return new Date(a.dateApplied).getTime() - new Date(b.dateApplied).getTime();
@@ -80,28 +43,21 @@ export default function ApplicationListPage() {
   });
   
   useEffect(() => {
-    const getApps = async () => {
-    try {
-        const res = await fetch("/api/applicationlist", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+    const fetchApps = async () => {
+      const res = await fetch("/api/applicationlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(filters),
+        credentials: "include",
+      });
 
-        if (!res.ok) {
-          console.log("mistake");
-        }
-        
-        const data = await res.json();
-        setApplications(data.applications);
-        setAppId(data.applications.id);
-
-      } catch (err) {
-        console.log("oops");
-      }
+      const data = await res.json();
+      setApplications(data.applications);
+      setAppId(data.applications.id);
     };
-    
-    getApps();
-  }, [deleted]);
+
+    fetchApps();
+  }, [filters]);
 
   useEffect(() => {
     if (edited === "true") {
@@ -184,11 +140,13 @@ export default function ApplicationListPage() {
             </div>
             <div className="flex justify-between items-center mb-4">
               <button
-                onClick={() => setIsFilterOpen(true)}
+                onClick={() => setShowFilter(true)}
                 className="border px-4 py-2 rounded hover:bg-gray-100"
               >
                 Filter
               </button>
+
+              
             </div>
           </div>
           <table className="min-w-full bg-white border border-gray-300">
@@ -262,11 +220,11 @@ export default function ApplicationListPage() {
           onClose={closeModal}
         />
         <FilterModal
-          isOpen={isFilterOpen}
-          filters={filters}
-          onChange={toggleFilter}
-          onClose={() => setIsFilterOpen(false)}
-          onClear={clearFilters}
+          isOpen={showFilter}
+          onClose={() => setShowFilter(false)}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+          }}
         />
     </div>
   );

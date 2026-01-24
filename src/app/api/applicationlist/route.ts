@@ -3,6 +3,57 @@ import pool from "@/backend/db";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
+export async function POST(req: Request) {
+  console.log("POST!!!!!!!!");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth")?.value;
+
+  const decoded = jwt.verify(token!, process.env.JWT_SECRET!) as {
+    userId: number;
+  };
+
+  const filters = await req.json();
+
+  let query = `
+    SELECT *
+    FROM applications
+    WHERE user_id = $1
+  `;
+
+  const values: any[] = [decoded.userId];
+  let i = 2;
+
+  if (filters.jobTitle) {
+    query += ` AND job_title ILIKE $${i++}`;
+    values.push(`%${filters.jobTitle}%`);
+  }
+
+  if (filters.company) {
+    query += ` AND company ILIKE $${i++}`;
+    values.push(`%${filters.company}%`);
+  }
+
+  if (filters.workSetting?.remote) {
+    query += ` AND 'remote' = ANY(work_setting)`;
+  }
+
+  if (filters.dateFrom) {
+    query += ` AND date_applied >= $${i++}`;
+    values.push(filters.dateFrom);
+  }
+
+  if (filters.dateTo) {
+    query += ` AND date_applied <= $${i++}`;
+    values.push(filters.dateTo);
+  }
+
+  const result = await pool.query(query, values);
+
+  return NextResponse.json({
+    applications: result.rows,
+  });
+}
+
 export async function GET(req: Request) {
   try {
     const cookieStore = await cookies();
