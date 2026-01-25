@@ -19,8 +19,26 @@ export default function ApplicationListPage() {
 
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
+  const DEFAULT_FILTERS: ApplicationFilters = {
+    jobTitle: "",
+    company: "",
+    location: "",
+    jobType: {
+      fulltime: false,
+      parttime: false,
+    },
+    workSetting: {
+      inperson: false,
+      hybrid: false,
+      remote: false,
+    },
+    dateFrom: "",
+    dateTo: "",
+    status: "",
+    stagereached: "",
+  };
 
-  const [filters, setFilters] = useState<ApplicationFilters | null>(null);
+  const [filters, setFilters] = useState<ApplicationFilters>(DEFAULT_FILTERS);
   const [showFilter, setShowFilter] = useState(false);
 
   const sortedApplications = [...applications].sort((a, b) => {

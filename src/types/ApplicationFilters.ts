@@ -1,6 +1,11 @@
 export type ApplicationFilters = {
   jobTitle?: string;
   company?: string;
+  location?: string;
+  jobType?: {
+    fulltime: boolean;
+    parttime: boolean;
+  };
   workSetting?: {
     inperson: boolean;
     hybrid: boolean;
@@ -8,11 +13,6 @@ export type ApplicationFilters = {
   };
   dateFrom?: string;
   dateTo?: string;
+  status?: string;
+  stagereached?: string;
 };
-
-/** in the future, add
- * - location
- * - job type
- * - status
- * - stage reached
- */

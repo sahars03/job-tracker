@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  console.log("POST!!!!!!!!");
   const cookieStore = await cookies();
   const token = cookieStore.get("auth")?.value;
 
@@ -33,6 +32,19 @@ export async function POST(req: Request) {
     values.push(`%${filters.company}%`);
   }
 
+  if (filters.location) {
+    query += ` AND location ILIKE $${i++}`;
+    values.push(`%${filters.location}%`);
+  }
+
+  if (filters.jobType?.fulltime) {
+    query += ` AND jobType = "fulltime"`;
+  }
+
+  if (filters.jobType?.parttime) {
+    query += ` AND jobType = "parttime"`;
+  }
+
   if (filters.workSetting?.remote) {
     query += ` AND 'remote' = ANY(work_setting)`;
   }
@@ -47,11 +59,38 @@ export async function POST(req: Request) {
     values.push(filters.dateTo);
   }
 
+  if (filters.status) {
+    query += ` AND status ILIKE $${i++}`;
+    values.push(`%${filters.status}%`);
+  }
+
+  if (filters.stagereached) {
+    query += ` AND stagereacehd ILIKE $${i++}`;
+    values.push(`%${filters.stagereached}%`);
+  }
+
   const result = await pool.query(query, values);
 
-  return NextResponse.json({
-    applications: result.rows,
-  });
+    const apps = result.rows.map(row => ({
+      id: row.id,
+      jobTitle: row.job_title,
+      company: row.company,
+      location: row.job_location,
+      jobType: row.job_type,
+      workSetting: row.work_setting ?? [],
+      dateApplied: row.date_applied,
+      status: row.app_status,
+      stageReached: row.stage_reached,
+      notes: row.notes,
+    }));
+
+    return NextResponse.json(
+    {
+        message: "Found applications",
+        applications: apps,
+    },
+    { status: 200 }
+    );
 }
 
 export async function GET(req: Request) {
@@ -92,7 +131,7 @@ export async function GET(req: Request) {
       company: row.company,
       location: row.job_location,
       jobType: row.job_type,
-      workSetting: row.work_setting,
+      workSetting: row.work_setting ?? [],
       dateApplied: row.date_applied,
       status: row.app_status,
       stageReached: row.stage_reached,
