@@ -2,17 +2,14 @@ export type ApplicationFilters = {
   jobTitle?: string;
   company?: string;
   location?: string;
-  jobType?: {
-    fulltime: boolean;
-    parttime: boolean;
-  };
+  jobType?: "full-time" | "part-time" | null;
   workSetting?: {
     inperson: boolean;
     hybrid: boolean;
     remote: boolean;
   };
-  dateFrom?: string;
-  dateTo?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
   status?: string;
   stagereached?: string;
 };
