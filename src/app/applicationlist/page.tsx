@@ -23,23 +23,40 @@ export default function ApplicationListPage() {
     jobTitle: "",
     company: "",
     location: "",
-    jobType: {
-      fulltime: false,
-      parttime: false,
-    },
+    jobType: undefined,
     workSetting: {
       inperson: false,
       hybrid: false,
       remote: false,
     },
-    dateFrom: "",
-    dateTo: "",
+    dateFrom: undefined,
+    dateTo: undefined,
     status: "",
     stagereached: "",
   };
 
   const [filters, setFilters] = useState<ApplicationFilters>(DEFAULT_FILTERS);
   const [showFilter, setShowFilter] = useState(false);
+  const [draftFilters, setDraftFilters] =
+    useState<ApplicationFilters>(DEFAULT_FILTERS);
+
+
+  const handleApplyFilters = () => {
+    setFilters(draftFilters);
+    setShowFilter(false);
+  };
+
+  const handleClearFilters = () => {
+    setDraftFilters(DEFAULT_FILTERS);
+    setFilters(DEFAULT_FILTERS);
+    setShowFilter(false);
+  };
+
+  const openFilterModal = () => {
+    setDraftFilters(filters); // clone current applied filters
+    setShowFilter(true);
+  };
+
 
   const sortedApplications = [...applications].sort((a, b) => {
     switch (sortBy) {
@@ -237,13 +254,15 @@ export default function ApplicationListPage() {
           selectedApp={selectedApp!}
           onClose={closeModal}
         />
-        <FilterModal
-          isOpen={showFilter}
-          onClose={() => setShowFilter(false)}
+    <FilterModal
+      isOpen={showFilter}
+      draftFilters={draftFilters}
+      setDraftFilters={setDraftFilters}
           onApply={(newFilters) => {
             setFilters(newFilters);
           }}
-        />
+      onClose={() => setShowFilter(false)}
+    />
     </div>
   );
 }
