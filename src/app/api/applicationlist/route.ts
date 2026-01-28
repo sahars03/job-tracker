@@ -33,18 +33,19 @@ export async function POST(req: Request) {
   }
 
   if (filters.location) {
-    query += ` AND location ILIKE $${i++}`;
+    query += ` AND job_location ILIKE $${i++}`;
     values.push(`%${filters.location}%`);
   }
 
   if (filters.jobType?.fulltime) {
-    query += ` AND jobType = "fulltime"`;
+    query += ` AND job_type = "fulltime"`;
   }
 
   if (filters.jobType?.parttime) {
-    query += ` AND jobType = "parttime"`;
+    query += ` AND job_type = "parttime"`;
   }
 
+  // not correct
   if (filters.workSetting?.remote) {
     query += ` AND 'remote' = ANY(work_setting)`;
   }
@@ -60,12 +61,12 @@ export async function POST(req: Request) {
   }
 
   if (filters.status) {
-    query += ` AND status ILIKE $${i++}`;
+    query += ` AND app_status ILIKE $${i++}`;
     values.push(`%${filters.status}%`);
   }
 
   if (filters.stagereached) {
-    query += ` AND stagereacehd ILIKE $${i++}`;
+    query += ` AND stage_reached ILIKE $${i++}`;
     values.push(`%${filters.stagereached}%`);
   }
 

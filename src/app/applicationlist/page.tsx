@@ -157,7 +157,13 @@ export default function ApplicationListPage() {
       {applications.length > 0 ? ( <>
        <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
           <div className="flex justify-end w-full max-w-[90%] mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowFilter(true)}
+                className="border px-4 py-2 rounded hover:bg-gray-100"
+              >
+                Filter
+              </button>
               <label className="text-sm font-medium text-gray-600">
                 Sort by:
               </label>
@@ -172,16 +178,6 @@ export default function ApplicationListPage() {
                 <option value="company">Company</option>
                 <option value="status">Status</option>
               </select>
-            </div>
-            <div className="flex justify-between items-center mb-4">
-              <button
-                onClick={() => setShowFilter(true)}
-                className="border px-4 py-2 rounded hover:bg-gray-100"
-              >
-                Filter
-              </button>
-
-              
             </div>
           </div>
           <table className="min-w-full bg-white border border-gray-300">
@@ -258,9 +254,9 @@ export default function ApplicationListPage() {
       isOpen={showFilter}
       draftFilters={draftFilters}
       setDraftFilters={setDraftFilters}
-          onApply={(newFilters) => {
-            setFilters(newFilters);
-          }}
+      onApply={(newFilters) => {
+        setFilters(newFilters);
+      }}
       onClose={() => setShowFilter(false)}
     />
     </div>
