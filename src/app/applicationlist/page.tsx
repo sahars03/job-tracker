@@ -16,6 +16,7 @@ export default function ApplicationListPage() {
   const deleted = searchParams.get("deleted") || false;
   const router = useRouter();
   const [sortBy, setSortBy] = useState("dateDesc");
+  const [emptyFilter, setEmptyFilter] = useState(false);
 
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
@@ -88,6 +89,11 @@ export default function ApplicationListPage() {
 
       const data = await res.json();
       setApplications(data.applications);
+
+      if (applications.length === 0) {
+        setEmptyFilter(true);
+      }
+
       setAppId(data.applications.id);
     };
 
@@ -154,8 +160,6 @@ export default function ApplicationListPage() {
       {/* main page */}
       <p className="font-sans text-6xl">Your Applications</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-      {applications.length > 0 ? ( <>
-       <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
           <div className="flex justify-end w-full max-w-[90%] mb-4">
             <div className="flex items-center gap-4">
               <button
@@ -180,6 +184,9 @@ export default function ApplicationListPage() {
               </select>
             </div>
           </div>
+      {applications.length > 0 ? ( <>
+       <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
+          
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-50">
               <tr>
@@ -236,14 +243,25 @@ export default function ApplicationListPage() {
         </div>
         </>
       ) : (
-      <div className="text-center">
-      <p className="text-gray-500">You have no applications yet.</p>
-      <Link href="/addnewjob">
-        <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-          Add new application
-        </button>
-      </Link>
-      </div>
+        emptyFilter ? (
+          <div className="text-center">
+            <p className="text-gray-500">No results have been found.</p>
+              <button 
+              onClick={handleClearFilters}
+              className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+                Clear filters
+              </button>
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-gray-500">You have no applications yet.</p>
+            <Link href="/addnewjob">
+              <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+                Add new application
+              </button>
+            </Link>
+          </div>
+        )
       )}
         <ApplicationModal 
           isOpen={isOpen}

@@ -95,7 +95,14 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
               ))}
             </div>
 
-<label className="flex items-center">Work setting</label><div className="flex items-center gap-4"> {(["inperson", "hybrid", "remote"] as const).map((key) => ( <label key={key} className="flex gap-2 items-center"> <input type="checkbox" checked={draftFilters.workSetting?.[key]} onChange={() => setDraftFilters({ ...draftFilters, workSetting: { ...draftFilters.workSetting!, [key]: !draftFilters.workSetting?.[key], }, }) } /> <span className="capitalize">{key}</span> </label> ))} </div>
+            <label className="flex items-center">Work setting</label>
+            <div className="flex items-center gap-4"> {(["inperson", "hybrid", "remote"] as const).map((key) => (
+              <label key={key} className="flex gap-2 items-center">
+                <input type="checkbox" checked={draftFilters.workSetting?.[key]}
+                onChange={() => setDraftFilters({ ...draftFilters, workSetting: { ...draftFilters.workSetting!, [key]: !draftFilters.workSetting?.[key], }, }) } />
+                <span className="capitalize">{key}</span> 
+              </label> ))} 
+            </div>
 
           </div>
           <div className="flex flex-col gap-2">
