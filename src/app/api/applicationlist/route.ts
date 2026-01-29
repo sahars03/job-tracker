@@ -45,9 +45,15 @@ export async function POST(req: Request) {
     query += ` AND job_type = "parttime"`;
   }
 
-  // not correct
-  if (filters.workSetting?.remote) {
-    query += ` AND 'remote' = ANY(work_setting)`;
+  const selectedWorkSettings: string[] = [];
+
+  if (filters.workSetting?.inperson) selectedWorkSettings.push("inperson");
+  if (filters.workSetting?.hybrid) selectedWorkSettings.push("hybrid");
+  if (filters.workSetting?.remote) selectedWorkSettings.push("remote");
+
+  if (selectedWorkSettings.length > 0) {
+    query += ` AND work_setting && $${i++}::varchar[]`;
+    values.push(selectedWorkSettings);
   }
 
   if (filters.dateFrom) {

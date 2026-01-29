@@ -95,45 +95,11 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
               ))}
             </div>
 
-            <label className="flex items-center">Work setting</label>
-
-            <div className="flex flex-wrap gap-3">
-              {(["inperson", "hybrid", "remote"] as const).map((key) => (
-                <label
-                  key={key}
-                  className={`flex gap-2 items-center ${
-                    key === "remote" ? "w-full" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={draftFilters.workSetting?.[key]}
-                    onChange={() =>
-                      setDraftFilters({
-                        ...draftFilters,
-                        workSetting: {
-                          ...draftFilters.workSetting!,
-                          [key]: !draftFilters.workSetting?.[key],
-                        },
-                      })
-                    }
-                  />
-                  <span className="capitalize">{key}</span>
-                </label>
-              ))}
-            </div>
+<label className="flex items-center">Work setting</label><div className="flex items-center gap-4"> {(["inperson", "hybrid", "remote"] as const).map((key) => ( <label key={key} className="flex gap-2 items-center"> <input type="checkbox" checked={draftFilters.workSetting?.[key]} onChange={() => setDraftFilters({ ...draftFilters, workSetting: { ...draftFilters.workSetting!, [key]: !draftFilters.workSetting?.[key], }, }) } /> <span className="capitalize">{key}</span> </label> ))} </div>
 
           </div>
           <div className="flex flex-col gap-2">
 
-            <label className="flex items-center gap-1">Company</label>
-            <input
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-              placeholder={draftFilters.company || "Company"}
-              onChange={(e) =>
-                setDraftFilters({ ...draftFilters, company: e.target.value })
-              }
-            />
             <label className="flex items-center">Date applied</label>
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-4">
