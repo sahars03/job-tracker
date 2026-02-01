@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function MainPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { refreshAuth } = useAuth();
 
   const router = useRouter();
 
@@ -57,6 +59,11 @@ export default function MainPage() {
 
                 <button
                   className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"
+                onClick={async () => {
+                  await fetch("/api/logout", { method: "POST" });
+                  await refreshAuth();
+                  router.push("/login");
+                }}
                 >
                   Log out of account
                 </button>

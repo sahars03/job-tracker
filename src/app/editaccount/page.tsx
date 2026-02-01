@@ -1,16 +1,38 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link"
+import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, type ChangeEvent } from "react";
+import Link from "next/link";
 
-export default function RegisterPage() {
+export default function EditAccountPage() {
 
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
-  
+
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("api/me", {
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setFormData(data.username);
+          setFormData(data.email)
+        }
+      } catch {
+        console.log("oops");
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   const [formError, setFormError] = useState(false);
   const [pwError, setPwError] = useState(false);
   const [retyped, setRetyped] = useState("");
@@ -23,11 +45,6 @@ export default function RegisterPage() {
       setRetyped(e.target.value);
     }
   };
-
-              setFormData({
-            username: data.username ?? "",
-            email: data.email ?? "",
-            });
 
   const validatePassword = () => {
     // validate other things as well e.g. if there is already a user with the given username/email
@@ -71,9 +88,6 @@ export default function RegisterPage() {
               console.error("Could not parse JSON:", jsonErr);
               data = { error: "Unknown error" };
             }
-            ///do i need these lines
-            //console.error(data.error);
-            //setFormError(true);
           }
         } catch (err) {
           console.error("Error submitting form:", err);
