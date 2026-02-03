@@ -6,12 +6,12 @@ import Link from "next/link";
 
 export default function EditAccountPage() {
 
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
-
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -22,8 +22,11 @@ export default function EditAccountPage() {
 
         if (res.ok) {
           const data = await res.json();
-          setFormData(data.username);
-          setFormData(data.email)
+          setFormData({
+            username: data.username ?? "",
+            email: data.email ?? "",
+            password: "",
+          });
         }
       } catch {
         console.log("oops");
@@ -53,14 +56,8 @@ export default function EditAccountPage() {
 
   // validates form data by checking if all the required fields have been filled in
   const validateForm = () => {
-    // list of required fields
-    const required = [
-      formData.email,
-      formData.password
-    ];
-    
-    // check if all required fields are filled
-    return required.every(field => field !== "") && validatePassword();
+    // also check that at least one of the fields has been updated, and if it is the password, make sure it has been retyped correctly
+    return validatePassword();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,7 +68,7 @@ export default function EditAccountPage() {
     // if the form has been validated, the formError state can be updated to reflect this
     if (validateForm()) {
       try {
-          const res = await fetch("/api/register", {
+          const res = await fetch("/api/editaccount", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
@@ -79,7 +76,7 @@ export default function EditAccountPage() {
 
           if (res.ok) {
             setIsSubmitted(true);
-            alert("It worked!");
+            router.push("/account?updated=true");
           } else {
             let data;
             try {
@@ -112,32 +109,21 @@ export default function EditAccountPage() {
   return (
     <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
       {!isSubmitted ? ( <>
-      <p className="font-sans text-6xl text-center sm:text-left">Register</p>
+      <p className="font-sans text-6xl text-center sm:text-left">Edit account</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
-      <p className="mb-6 text-xl">Fill out the form below to register.</p>
+      <p className="mb-6 text-xl">Fill out all of the fields that require changing</p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
         <div className="mb-4 flex flex-col gap-2 w-3/4">
           <input type="text" id="username" value={formData.username} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Username"/>
-          <input type="text" id="email" required value={formData.email} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Email*"/>
-          <input type="password" id="password" required value={formData.password} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password*"/>
-          <input type="password" id="retype" required value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password*"/>
+          <input type="text" id="email" value={formData.email} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Email"/>
+          <input type="password" id="password" value={formData.password} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password"/>
+          <input type="password" id="retype" value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password"/>
         </div>
-        <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Register</button>
+        <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Update details</button>
         {pwError && (
           <p className="text-red-500 text-sm mb-4">Passwords do not match</p>
         )}
-        {formError && !pwError && (
-          <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
-        )}
       </form>
-
-      <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
-      <div className="flex gap-1">
-        <span className="text-m"><i>Already registered?</i></span>
-        <Link href="/login" className="text-blue-500 hover:underline text-m">
-          <i>Log in</i>
-        </Link>
-      </div>
       </> ) : (
         <div className="text-center">
           <p className="font-sans text-6xl">Registration successful!</p>

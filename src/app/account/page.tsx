@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 
 export default function MainPage() {
@@ -11,7 +11,10 @@ export default function MainPage() {
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { refreshAuth } = useAuth();
+  const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
 
+  const searchParams = useSearchParams();
+  const updated = searchParams.get("updated") || false;
   const router = useRouter();
 
   useEffect(() => {
@@ -39,8 +42,26 @@ export default function MainPage() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    if (updated === "true") {
+      setShowUpdateSuccess(true);
+
+      const timer = setTimeout(() => {
+        setShowUpdateSuccess(false);
+        router.replace("/account");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [updated]);
+
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
+      {showUpdateSuccess && (
+      <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+        Account updated successfully
+      </div>
+    )}
       {/* main page */}
       <p className="font-sans text-6xl">Account</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
@@ -70,7 +91,7 @@ export default function MainPage() {
 
                 <button
                   className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"
-                >
+                  onClick={() => {router.push("/editaccount");}}>
                   Change details
                 </button>
 

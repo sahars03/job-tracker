@@ -24,11 +24,6 @@ export default function RegisterPage() {
     }
   };
 
-              setFormData({
-            username: data.username ?? "",
-            email: data.email ?? "",
-            });
-
   const validatePassword = () => {
     // validate other things as well e.g. if there is already a user with the given username/email
     return formData.password === retyped
