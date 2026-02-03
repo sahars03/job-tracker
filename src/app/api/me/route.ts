@@ -28,7 +28,6 @@ export async function GET() {
   }
 }
 
-
 export async function PUT(req: Request) {
   try {
     const cookieStore = await cookies();
@@ -48,18 +47,23 @@ export async function PUT(req: Request) {
     const values: any[] = [];
 
     // username
+    console.log("USERNAME")
     if (username && username.trim() !== "") {
       values.push(username);
       updates.push(`username = $${values.length}`);
     }
 
     // email
+      console.log("USERNAME")
+
     if (email && email.trim() !== "") {
       values.push(email);
       updates.push(`email = $${values.length}`);
     }
 
     // password
+        console.log("USERNAME")
+
     if (password && password.trim() !== "") {
       const hashedPassword = await bcrypt.hash(password, 10);
       values.push(hashedPassword);
@@ -68,6 +72,8 @@ export async function PUT(req: Request) {
 
     // nothing to update
     if (updates.length === 0) {
+          console.log("No fields to update");
+
       return NextResponse.json(
         { error: "No fields to update" },
         { status: 400 }

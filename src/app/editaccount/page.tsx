@@ -37,6 +37,8 @@ export default function EditAccountPage() {
   }, []);
 
   const [formError, setFormError] = useState(false);
+  const [formErrorMsg, setFormErrorMsg] = useState("");
+
   const [pwError, setPwError] = useState(false);
   const [retyped, setRetyped] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -57,7 +59,14 @@ export default function EditAccountPage() {
   // validates form data by checking if all the required fields have been filled in
   const validateForm = () => {
     // also check that at least one of the fields has been updated, and if it is the password, make sure it has been retyped correctly
-    return validatePassword();
+
+    if (Object.values(formData).every((value) => value === "")) {
+        setFormError(true);
+        setFormErrorMsg("No fields have been filled")
+        return false;
+    }
+
+    return validatePassword();  
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,12 +77,14 @@ export default function EditAccountPage() {
     // if the form has been validated, the formError state can be updated to reflect this
     if (validateForm()) {
       try {
-          const res = await fetch("/api/editaccount", {
-            method: "POST",
+        console.log("post");
+          const res = await fetch("/api/me", {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
           });
 
+          
           if (res.ok) {
             setIsSubmitted(true);
             router.push("/account?updated=true");
@@ -97,12 +108,9 @@ export default function EditAccountPage() {
       if (!validatePassword()) {
         console.log("invalid pw");
         setPwError(true);
+        setFormErrorMsg("Passwords do not match")
       }
       setFormError(true);
-
-      // if (pwError && formError) {
-      //   alert("message")
-      // }
     }
   };
 
@@ -120,8 +128,8 @@ export default function EditAccountPage() {
           <input type="password" id="retype" value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password"/>
         </div>
         <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Update details</button>
-        {pwError && (
-          <p className="text-red-500 text-sm mb-4">Passwords do not match</p>
+        {formError && (
+          <p className="text-red-500 text-sm mb-4">{formErrorMsg}</p>
         )}
       </form>
       </> ) : (
