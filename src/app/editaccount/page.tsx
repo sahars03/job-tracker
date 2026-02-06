@@ -116,7 +116,6 @@ export default function EditAccountPage() {
 
   return (
     <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
-      {!isSubmitted ? ( <>
       <p className="font-sans text-6xl text-center sm:text-left">Edit account</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
       <p className="mb-6 text-xl">Fill out all of the fields that require changing</p>
@@ -132,17 +131,6 @@ export default function EditAccountPage() {
           <p className="text-red-500 text-sm mb-4">{formErrorMsg}</p>
         )}
       </form>
-      </> ) : (
-        <div className="text-center">
-          <p className="font-sans text-6xl">Registration successful!</p>
-          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-          <Link href="/login">
-            <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-              Log in
-            </button>
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

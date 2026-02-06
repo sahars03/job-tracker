@@ -17,6 +17,32 @@ export default function MainPage() {
   const updated = searchParams.get("updated") || false;
   const router = useRouter();
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/me`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete account");
+      }
+
+      setShowDeleteConfirm(false);
+      const remove = async () => {
+        await fetch("/api/logout", { method: "POST" });
+        await refreshAuth();
+        router.push("/login");
+      }
+
+      remove();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -28,6 +54,7 @@ export default function MainPage() {
           const data = await res.json();
           setLoggedIn(true);
           setUsername(data.username);
+          console.log(`Email: ${data.email}`);
           setEmail(data.email)
         } else {
           setLoggedIn(false);
@@ -49,6 +76,7 @@ export default function MainPage() {
       const timer = setTimeout(() => {
         setShowUpdateSuccess(false);
         router.replace("/account");
+        router.refresh();
       }, 3000);
 
       return () => clearTimeout(timer);
@@ -95,13 +123,35 @@ export default function MainPage() {
                   Change details
                 </button>
 
-                <button
+                <button onClick={() => setShowDeleteConfirm(true)}
                   className= "bg-[#d7551f] hover:bg-[#e8662f] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"
                 >
                   Delete account
                 </button>
         </div>
-
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirm && (
+        <div className="fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+              <h3 className="font-sans font-semibold text-2xl text-center mb-3">Confirm Delete</h3>
+              <p className="font-sans text-center text-lg mb-2">Are you sure you want to delete your account?</p>
+            <div className="flex flex-row justify-center gap-4 mt-2">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="bg-[#d7551f] hover:bg-[#e8662f] px-4 py-2 text-white rounded "
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
           {/* 
            */}
     </div>

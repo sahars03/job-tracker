@@ -16,9 +16,6 @@ const Navbar = () => {
 
       {!loading && (
         <div className="flex gap-6 items-center">
-          <Link href="/applicationlist">Applications</Link>
-          <Link href="/addnewjob">New</Link>
-
           {!loggedIn ? (
             <>
               <Link href="/register">Register</Link>
@@ -26,6 +23,8 @@ const Navbar = () => {
             </>
           ) : (
             <>
+              <Link href="/applicationlist">Applications</Link>
+              <Link href="/addnewjob">New</Link>
               <Link href="/account">Account</Link>
               <button
                 onClick={async () => {
