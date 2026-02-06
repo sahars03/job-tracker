@@ -57,7 +57,7 @@ export default function LoginPage() {
 
           if (res.ok) {
             await refreshAuth();
-            router.push("/mainpage");
+            router.push("/applicationlist");
           } else {
             let data;
             try {

@@ -73,7 +73,7 @@ export default function EditAccountPage() {
     e.preventDefault();
     setFormError(false);
     setPwError(false);
-    
+    console.log("Is this running");
     // if the form has been validated, the formError state can be updated to reflect this
     if (validateForm()) {
       try {
@@ -83,7 +83,6 @@ export default function EditAccountPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
           });
-
           
           if (res.ok) {
             setIsSubmitted(true);
@@ -126,11 +125,26 @@ export default function EditAccountPage() {
           <input type="password" id="password" value={formData.password} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password"/>
           <input type="password" id="retype" value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password"/>
         </div>
-        <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Update details</button>
+<div className="flex flex-row justify-center gap-4">
+  <button
+    type="button"
+    onClick={() => router.replace("/account?updated=false")}
+    className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl whitespace-normal text-center"
+  >
+    Cancel
+  </button>
+  <button
+    type="submit"
+    className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl"
+  >
+    Update details
+  </button>
+</div>
+      </form>
+
         {formError && (
           <p className="text-red-500 text-sm mb-4">{formErrorMsg}</p>
         )}
-      </form>
     </div>
   );
 }

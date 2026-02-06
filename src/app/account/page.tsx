@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 
-export default function MainPage() {
+export default function AccountPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -13,8 +13,9 @@ export default function MainPage() {
   const { refreshAuth } = useAuth();
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState(useSearchParams().get("updated") || "");
+
   const searchParams = useSearchParams();
-  const updated = searchParams.get("updated") || false;
   const router = useRouter();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -54,7 +55,6 @@ export default function MainPage() {
           const data = await res.json();
           setLoggedIn(true);
           setUsername(data.username);
-          console.log(`Email: ${data.email}`);
           setEmail(data.email)
         } else {
           setLoggedIn(false);
@@ -69,19 +69,31 @@ export default function MainPage() {
     checkAuth();
   }, []);
 
+    useEffect(() => {
+      if (searchQuery === "false") {
+        console.log("False");
+        console.log(`Search params: ${searchParams}`);
+          setSearchQuery("");
+          router.replace("/account");
+          router.refresh();    
+      }
+    }, [searchQuery]);
+
   useEffect(() => {
-    if (updated === "true") {
+    if (searchQuery === "true") {
+        console.log(`SearchQuery: ${searchQuery}`);
       setShowUpdateSuccess(true);
 
       const timer = setTimeout(() => {
+        setSearchQuery("");
         setShowUpdateSuccess(false);
         router.replace("/account");
         router.refresh();
       }, 3000);
-
+    
       return () => clearTimeout(timer);
     }
-  }, [updated]);
+}, [searchQuery]);
 
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
@@ -104,8 +116,7 @@ export default function MainPage() {
             </p>
         </div>
 
-        <div className="flex items-center gap-15">
-
+      <div className="flex flex-row justify-center gap-15">
                 <button
                   className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"
                 onClick={async () => {
@@ -114,7 +125,7 @@ export default function MainPage() {
                   router.push("/login");
                 }}
                 >
-                  Log out of account
+                  Log out
                 </button>
 
                 <button
@@ -137,6 +148,7 @@ export default function MainPage() {
               <p className="font-sans text-center text-lg mb-2">Are you sure you want to delete your account?</p>
             <div className="flex flex-row justify-center gap-4 mt-2">
                 <button
+                  type="button"
                   onClick={() => setShowDeleteConfirm(false)}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
