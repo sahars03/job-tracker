@@ -40,7 +40,7 @@ export default function ApplicationListPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [draftFilters, setDraftFilters] =
     useState<ApplicationFilters>(DEFAULT_FILTERS);
-
+  const [loaded, setLoaded] = useState(false);
 
   const handleApplyFilters = () => {
     setFilters(draftFilters);
@@ -89,7 +89,7 @@ export default function ApplicationListPage() {
 
       const data = await res.json();
       setApplications(data.applications);
-
+      setLoaded(true);
       if (applications.length === 0) {
         setEmptyFilter(true);
       }
@@ -158,6 +158,7 @@ export default function ApplicationListPage() {
         </div>
       )}
       {/* main page */}
+      {loaded ? ( <>
       <p className="font-sans text-6xl">Your Applications</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
           <div className="flex justify-end w-full max-w-[90%] mb-4">
@@ -185,29 +186,31 @@ export default function ApplicationListPage() {
             </div>
           </div>
       {applications.length > 0 ? ( <>
-       <div className="w-full items-center justify-center max-w-[90%] overflow-x-auto">
+       <div className="w-full items-center justify-center max-w-[95%] overflow-x-auto">
           
           <table className="min-w-full bg-white border border-gray-300">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#82b1b1]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Setting</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stage Reached</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Job Title</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Company</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Location</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Date Applied</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Job Type</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Work Setting</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Stage Reached</th>
+                <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Notes</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-300">
+            {/**  #deffff*/}
+            <tbody className="bg-[#f9efef] divide-y divide-gray-500">
               {sortedApplications.map((app) => (
-                <tr key={app.id} className="hover:bg-gray-50" onClick={() => openModal(app)}>
+                <tr key={app.id}   className="hover:bg-[#93c2c2] cursor-pointer"
+ onClick={() => openModal(app)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{app.jobTitle}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.company}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.location}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.company}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.location}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {new Date(app.dateApplied).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -216,10 +219,10 @@ export default function ApplicationListPage() {
                     </span>*/  /* this looks quite nice but i think it should be used in a different place instead */}
                     {app.status}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.jobType}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.workSetting.join("/")}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.stageReached}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 relative group">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.jobType}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.workSetting.join("/")}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.stageReached}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 relative group">
                     <div className="w-[200px] overflow-hidden text-ellipsis whitespace-nowrap cursor-default">
                       {app.notes}
                       {app.notes.length > 0 && (
@@ -277,6 +280,12 @@ export default function ApplicationListPage() {
       }}
       onClose={() => setShowFilter(false)}
     />
+      </>
+      ) : (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+      )}
     </div>
   );
 }
