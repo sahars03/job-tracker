@@ -1,5 +1,6 @@
 "use client";
 import { useState, type ChangeEvent } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { JobApplication } from "@/src/types/JobApplication";
 
@@ -23,6 +24,7 @@ export default function AddNewJobPage() {
     notes: ""
   });
 
+  const router = useRouter();
   // handles input changes for text inputs, radio buttons, and checkboxes
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // input that triggered the change event
@@ -92,6 +94,7 @@ export default function AddNewJobPage() {
 
       setFormError(false);
       setIsSubmitted(true);
+      router.replace("/applicationlist?savedjob=true");
     } catch (err) {
       console.error(err);
       setFormError(true);
@@ -101,7 +104,6 @@ export default function AddNewJobPage() {
   // display depends on if the form information has been submitted
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
-      {!isSubmitted ? ( <>
         <p className="font-sans text-6xl">Create new application</p>
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <form className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
@@ -147,26 +149,27 @@ export default function AddNewJobPage() {
             <label className="flex items-center gap-1">Notes</label>
             <textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} rows={4} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Notes"/>
             </div>
+          <div className="flex flex-row justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => router.replace("/applicationlist?notsaved=true")}
+              className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl whitespace-normal text-center"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"            >
+              Save
+            </button>
+          </div>
         </form>
-        <button onClick={handleSubmit} className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-          Save
-        </button>
         {formError && (
           <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
         )}
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>
-      </> ) : (
-        <div className="text-center">
-          <p className="font-sans text-6xl">Application saved!</p>
-          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-          <Link href="/applicationlist">
-            <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-              View applications
-            </button>
-          </Link>
-        </div>
-      )}
     </div> 
   );
 }

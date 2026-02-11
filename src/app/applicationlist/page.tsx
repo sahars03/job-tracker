@@ -14,12 +14,18 @@ export default function ApplicationListPage() {
   const searchParams = useSearchParams();
   const edited = searchParams.get("edited") || false;
   const deleted = searchParams.get("deleted") || false;
+  const notsaved = searchParams.get("notsaved") || false;
+  const savedjob = searchParams.get("savedjob") || false;
+
   const router = useRouter();
   const [sortBy, setSortBy] = useState("dateDesc");
   const [emptyFilter, setEmptyFilter] = useState(false);
 
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
+  const [showNoSave, setShowNoSave] = useState(false);
+  const [showSavedJob, setShowSavedJob] = useState(false);
+
   const DEFAULT_FILTERS: ApplicationFilters = {
     jobTitle: "",
     company: "",
@@ -114,6 +120,32 @@ export default function ApplicationListPage() {
   }, [edited]);
 
   useEffect(() => {
+    if (notsaved === "true") {
+      setShowNoSave(true);
+
+      const timer = setTimeout(() => {
+        setShowNoSave(false);
+        router.replace("/applicationlist");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [notsaved]);
+
+  useEffect(() => {
+    if (savedjob === "true") {
+      setShowSavedJob(true);
+
+      const timer = setTimeout(() => {
+        setShowSavedJob(false);
+        router.replace("/applicationlist");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [savedjob]);
+
+  useEffect(() => {
     if (deleted === "true") {
       setShowDelSuccess(true);
 
@@ -155,6 +187,16 @@ export default function ApplicationListPage() {
       {showDelSuccess && (
         <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Application deleted successfully
+        </div>
+      )}
+      {showNoSave && (
+        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+          Application not saved
+        </div>
+      )}
+      {showSavedJob && (
+        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+          Application saved successfully
         </div>
       )}
       {/* main page */}
