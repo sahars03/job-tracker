@@ -35,6 +35,20 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
     }
   };
 
+    const formatWorkSetting = (settings: string[]) => {
+    let res = "";
+    settings.forEach(function (item) {
+      if (item === "inperson") {
+        res += "In-person";
+      } else {
+        res += item.charAt(0).toUpperCase() + item.slice(1);
+      };
+      res += "/";
+    });
+
+    return res.slice(0, -1);
+  };
+
   return (
       <div className="fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
         <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl">
@@ -43,14 +57,18 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
           </button> 
           <div className="flex items-center flex-col justify-center">
             <p className="font-sans font-semibold text-4xl text-center mb-3">{selectedApp.jobTitle} at {selectedApp.company}</p>
-            <p className="font-sans text-xl italic">Status: {selectedApp.status}</p>
+            {selectedApp.status && (
+              <p className="font-sans text-xl italic">Status: {selectedApp.status}</p>
+            )}            
           </div>
           <div className="h-[2px] bg-gray-300 w-full my-3"></div>
           <p><span className="font-sans font-semibold">Location:</span> {selectedApp.location}</p>
           <p><span className="font-sans font-semibold">Date Applied:</span> {new Date(selectedApp.dateApplied).toLocaleDateString()}</p>
           <p><span className="font-sans font-semibold">Job Type:</span> {selectedApp.jobType}</p>
-          <p><span className="font-sans font-semibold">Work Setting:</span> {selectedApp.workSetting.join("/")}</p>
-          <p><span className="font-sans font-semibold">Stage Reached:</span> {selectedApp.stageReached}</p>
+          <p><span className="font-sans font-semibold">Work Setting:</span> {formatWorkSetting(selectedApp.workSetting)}</p>
+            {selectedApp.stageReached && (
+              <p><span className="font-sans font-semibold">Stage Reached:</span> {selectedApp.stageReached}</p>
+            )}
           <div className="h-[2px] bg-gray-300 w-full my-3"></div>
           <p className="mt-2"><span className="font-sans font-semibold">Notes:</span></p>
           <p className="whitespace-pre-wrap font-sans">{selectedApp.notes || "No additional notes."}</p>

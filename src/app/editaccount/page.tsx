@@ -5,6 +5,7 @@ import { useState, useEffect, type ChangeEvent } from "react";
 import Link from "next/link";
 
 export default function EditAccountPage() {
+  const [loaded, setLoaded] = useState(false);
 
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ export default function EditAccountPage() {
             email: data.email ?? "",
             password: "",
           });
+          setLoaded(true);
         }
       } catch {
         console.log("oops");
@@ -115,6 +117,8 @@ export default function EditAccountPage() {
 
   return (
     <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
+      {loaded ? ( <>
+
       <p className="font-sans text-6xl text-center sm:text-left">Edit account</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
       <p className="mb-6 text-xl">Fill out all of the fields that require changing</p>
@@ -145,6 +149,11 @@ export default function EditAccountPage() {
         {formError && (
           <p className="text-red-500 text-sm mb-4">{formErrorMsg}</p>
         )}
+      </> ) : (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+      )}
     </div>
   );
 }

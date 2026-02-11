@@ -55,9 +55,9 @@ export async function POST(req: Request) {
         jobType,
         workSetting,
         dateApplied,
-        status || null,
-        stageReached || null,
-        notes || null,
+        status || "",
+        stageReached || "",
+        notes || "",
       ]
     );
 

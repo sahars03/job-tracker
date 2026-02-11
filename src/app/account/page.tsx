@@ -19,6 +19,7 @@ export default function AccountPage() {
   const router = useRouter();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -55,7 +56,8 @@ export default function AccountPage() {
           const data = await res.json();
           setLoggedIn(true);
           setUsername(data.username);
-          setEmail(data.email)
+          setEmail(data.email);
+          setLoaded(true);
         } else {
           setLoggedIn(false);
         }
@@ -102,6 +104,7 @@ export default function AccountPage() {
         Account updated successfully
       </div>
     )}
+      {loaded ? ( <>
       {/* main page */}
       <p className="font-sans text-6xl">Account</p>
       <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
@@ -167,5 +170,10 @@ export default function AccountPage() {
           {/* 
            */}
     </div>
+      </> ) : (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+      )}
     </div>
   )};

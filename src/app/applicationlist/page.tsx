@@ -177,6 +177,21 @@ export default function ApplicationListPage() {
     setSelectedApp(null);
   };
 
+
+  const formatWorkSetting = (settings: string[]) => {
+    let res = "";
+    settings.forEach(function (item) {
+      if (item === "inperson") {
+        res += "In-person";
+      } else {
+        res += item.charAt(0).toUpperCase() + item.slice(1);
+      };
+      res += "/";
+    });
+
+    return res.slice(0, -1);
+  };
+
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
       {showEditSuccess && (
@@ -261,13 +276,13 @@ export default function ApplicationListPage() {
                     </span>*/  /* this looks quite nice but i think it should be used in a different place instead */}
                     {app.status}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.jobType}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.workSetting.join("/")}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.jobType.charAt(0).toUpperCase()+app.jobType.slice(1)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatWorkSetting(app.workSetting)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.stageReached}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 relative group">
                     <div className="w-[200px] overflow-hidden text-ellipsis whitespace-nowrap cursor-default">
                       {app.notes}
-                      {app.notes.length > 0 && (
+                      {app.notes && (
                         <div className="fixed hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg z-50 w-[300px] whitespace-pre-wrap cursor-default">
                           {app.notes}
                         </div>

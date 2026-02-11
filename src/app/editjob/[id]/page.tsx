@@ -9,6 +9,7 @@ export default function EditJobPage() {
   const params = useParams();
   const id = Number(params.id);
   const router = useRouter();
+  const [loaded, setLoaded] = useState(false);
 
   // state to manage form submission
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -49,6 +50,7 @@ export default function EditJobPage() {
         dateApplied: formatDateForInput(data.dateApplied),
       });
     };
+      setLoaded(true);
 
     fetchJob();
   }, [params.id]);
@@ -132,7 +134,7 @@ export default function EditJobPage() {
 
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
-      {!isSubmitted ? ( <>
+      {loaded ? ( <>
         <p className="font-sans text-6xl">Edit application</p>
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <form className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
@@ -178,25 +180,31 @@ export default function EditJobPage() {
             <label className="flex items-center gap-1">Notes</label>
             <textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} rows={4} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Notes"/>
             </div>
+          <div className="flex flex-row justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => router.replace("/applicationlist?notsaved=true")}
+              className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl whitespace-normal text-center"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"            >
+              Save
+            </button>
+          </div>
         </form>
-        <button onClick={handleSubmit} className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-          Save
-        </button>
         {formError && (
           <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
         )}
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>
       </> ) : (
-        <div className="text-center">
-          <p className="font-sans text-6xl">Application saved!</p>
-          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-          <Link href="/applicationlist">
-            <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-              View applications
-            </button>
-          </Link>
-        </div>
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
       )}
     </div> 
   );

@@ -21,7 +21,7 @@ export default function AddNewJobPage() {
     dateApplied: "",
     status: "",
     stageReached: "",
-    notes: ""
+    notes: "",
   });
 
   const router = useRouter();
