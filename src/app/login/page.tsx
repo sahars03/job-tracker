@@ -6,27 +6,23 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 
 export default function LoginPage() {
-  const { loggedIn, loading, refreshAuth } = useAuth();
+  // login authentication and router
+  const { refreshAuth } = useAuth();
   const router = useRouter();
 
+  // holds the data that the user inputs
   const [formData, setFormData] = useState({
     un_email: "",
     password: "",
   });
 
-  const [nameError, setNameError] = useState(false);
+  // state variables for tracking if there is an error with the form before or after the login attempt
   const [formError, setFormError] = useState(false);
-  const [pwError, setPwError] = useState(false);
+  const [submissionError, setSubmissionError] = useState(false);
 
   // update the form inputs every time they are changed
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
-
-  const validateAccount = () => {
-    // TODO: replace this logic with checking at the backend if the login is correct
-
-    return formData.password == formData.password;
   };
 
   // validates form data by checking if all the required fields have been filled in
@@ -38,48 +34,41 @@ export default function LoginPage() {
     ];
     
     // check if all required fields are filled
-    return required.every(field => field !== "") && validateAccount();
+    return required.every(field => field !== "");
   };
 
+  // handles submission of login details
   const handleSubmit = async (e: React.FormEvent) => {
+    // prevent the page from being refreshed automatically
     e.preventDefault();
-    setNameError(false);
-    setPwError(false);
+
+    // restore states to assume there is no problem
+    setSubmissionError(false);
     setFormError(false);
-    // TODO: validate input and redirect the user to their dashboard (maybe the homepage for now?)
+    
+    // if the form is valid, its contents can be used in a login attempt
     if (validateForm()) {
       try {
-          const res = await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-          });
+        // POST request for login attempt
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        
+        // if the login attempt is successful, the login state is updated and the user's applications are displayed
+        if (res.ok) {
+          await refreshAuth();
+          router.push("/applicationlist");
+        // otherwise, there is an error with the user's credentials
+        } else {
+          setSubmissionError(true);
+        }
 
-          if (res.ok) {
-            await refreshAuth();
-            router.push("/applicationlist");
-          } else {
-            let data;
-            try {
-              data = await res.json();
-
-              if (res.status === 404) {
-                // user not found
-                setNameError(true);
-              } else if (res.status === 401) {
-                // incorrect password
-                setPwError(true);
-              }
-            } catch (jsonErr) {
-              console.error("Could not parse JSON:", jsonErr);
-              data = { error: "Unknown error" };
-            }
-
-          }
       } catch (err) {
-        console.error("Error submitting form:", err);
-        setFormError(true);
+        setSubmissionError(true);
       }
+    // otherwise, there is an issue with the form's fields
     } else {
       setFormError(true);
     }
@@ -95,24 +84,21 @@ export default function LoginPage() {
           <input type="text" id="un_email" onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Username/email"/>
           <input type="password" id="password" onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password"/>
         </div>
-        {pwError && !nameError && !formError && (
-          <p className="text-red-500 text-sm mb-4">Incorrect password</p>
+        {submissionError && (
+          <p className="text-red-500 text-sm mb-4">Invalid credentials</p>
         )}
-        {nameError && !pwError && !formError && (
-          <p className="text-red-500 text-sm mb-4">Username/email does not exist</p>
-        )}
-        {formError && !nameError && !pwError && (
+        {formError && (
           <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
         )}
         <button type="submit" className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl">
           Log in
         </button>    
       </form>  
-        <Link href="/forgotpw" className="text-blue-500 hover:underline text-m">
-          Forgotten password?
-        </Link>
-        <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
-        <div className="flex gap-1">
+      <Link href="/forgotpw" className="text-blue-500 hover:underline text-m">
+        Forgotten password?
+      </Link>
+      <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
+      <div className="flex gap-1">
         <span className="text-m"><i>No account?</i></span>
         <Link href="/register" className="text-blue-500 hover:underline text-m">
           <i>Register</i>

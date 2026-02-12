@@ -5,37 +5,50 @@ import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
-    const { un_email, password } = await req.json();
+    // username/email and password provided by the user
+    const {un_email, password} = await req.json();
 
+    // SEARCH query to find the user, if they exist
     const result = await pool.query(
       "SELECT id, username, password_hash FROM users WHERE username = $1 OR email = $1",
       [un_email]
     );
-
+    
+    // if nothing is returned, the user does not exist
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    // user details
     const user = result.rows[0];
-    const match = await bcrypt.compare(password, user.password_hash);
 
+    // compare the passwords by using the given password (hashed) and the stored password hash
+    // if they do not match, an incorrect password has been given
+    const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
+      return NextResponse.json(
+        {error: "Invalid credentials"},
+        {status: 401}
+      );
     }
 
-    // ✅ include username in token
+    // create a JSON web token that contains the
+    // - payload (i.e. user ID and username information)
+    // - cryptographic signature key
+    // - expiration date for the token (i.e. in 7 days)
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      {userId: user.id, username: user.username},
       process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
+      {expiresIn: "7d"}
     );
 
-    // ✅ return ONE response and attach cookie
+    // success response
     const response = NextResponse.json(
-      { message: "Login successful" },
-      { status: 200 }
+      {message: "Login successful"},
+      {status: 200}
     );
 
+    // attach the JWT as a cookie
     response.cookies.set("auth", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -45,8 +58,8 @@ export async function POST(req: Request) {
     });
 
     return response;
+  
   } catch (err) {
-    console.error("Login error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
