@@ -32,11 +32,11 @@ export default function RegisterPage() {
 
   // checks if the given field contains any whitespace, which would make it invalid
   const validateField = (field: string) => {
-      if (!field || /\s/.test(field)) {
-        setWhitespaceError(true);
-        return false;
-      }
-      return true;
+    if (!field || /\s/.test(field)) {
+      setWhitespaceError(true);
+      return false;
+    }
+    return true;
   }
 
   // checks if the retyped and original passwords are the same
