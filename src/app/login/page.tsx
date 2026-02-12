@@ -1,20 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 
 export default function LoginPage() {
+
   // login authentication and router
   const { refreshAuth } = useAuth();
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState(useSearchParams().get("registered") || "");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   // holds the data that the user inputs
   const [formData, setFormData] = useState({
     un_email: "",
     password: "",
   });
+
+  // if the user has reached this page after registering, a popup should appear, controlled through the state that the effect changes
+  useEffect(() => {
+    if (searchQuery === "true") {
+      setRegistrationSuccess(true);
+
+      const timer = setTimeout(() => {
+        setSearchQuery("");
+        setRegistrationSuccess(false);
+        router.push("/login");
+      }, 3000);
+    
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery]);
 
   // state variables for tracking if there is an error with the form before or after the login attempt
   const [formError, setFormError] = useState(false);
@@ -75,7 +93,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
+    <div className="font-sans min-h-screen flex flex-col items-center pt-10">
+      {registrationSuccess && (
+        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+          Account created
+        </div>
+      )}
       <p className="font-sans text-6xl text-center sm:text-left">Log in</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
       <p className="mb-6 text-xl">Fill out the form below to log in.</p>

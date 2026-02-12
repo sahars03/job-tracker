@@ -1,31 +1,46 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link"
 
 export default function RegisterPage() {
 
+  const router = useRouter();
+
+  // holds the data that the user inputs
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
   
+  // state variables for tracking if there is an error with the form before or after the registration attempt
   const [formError, setFormError] = useState(false);
   const [pwError, setPwError] = useState(false);
   const [retyped, setRetyped] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState(false);
+  const [whitespaceError, setWhitespaceError] = useState(false);
 
+  // update the form inputs every time they are changed
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
     if (e.target.id === "retype") {
-      // @ts-ignore
       setRetyped(e.target.value);
     }
   };
 
+  // checks if the given field contains any whitespace, which would make it invalid
+  const validateField = (field: string) => {
+      if (!field || /\s/.test(field)) {
+        setWhitespaceError(true);
+        return false;
+      }
+      return true;
+  }
+
+  // checks if the retyped and original passwords are the same
   const validatePassword = () => {
-    // validate other things as well e.g. if there is already a user with the given username/email
     return formData.password === retyped
   };
 
@@ -37,62 +52,54 @@ export default function RegisterPage() {
       formData.password
     ];
     
-    // check if all required fields are filled
-    return required.every(field => field !== "") && validatePassword();
+    // check if all required fields are filled, the fields do not contain whitespace and the passwords match
+    return required.every(field => field !!= "" && validateField(field)) && validatePassword();
   };
 
+  // handles submission of registration details
   const handleSubmit = async (e: React.FormEvent) => {
+    // prevent the page from being refreshed automatically
     e.preventDefault();
+
+    // restore states to assume there is no problem
     setFormError(false);
     setPwError(false);
+    setSubmissionError(false);
+    setWhitespaceError(false);
     
-    // if the form has been validated, the formError state can be updated to reflect this
+    // if the form is valid, its contents can be used in a registration signup attempt
     if (validateForm()) {
       try {
-          const res = await fetch("/api/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-          });
-
-          if (res.ok) {
-            setIsSubmitted(true);
-            alert("It worked!");
-          } else {
-            let data;
-            try {
-              data = await res.json();
-            } catch (jsonErr) {
-              console.error("Could not parse JSON:", jsonErr);
-              data = { error: "Unknown error" };
-            }
-            ///do i need these lines
-            //console.error(data.error);
-            //setFormError(true);
-          }
-        } catch (err) {
-          console.error("Error submitting form:", err);
-          setFormError(true);
+        // POST request for registration attempt
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        
+        // if the registration is successful, move the user to the login page
+        if (res.ok) {
+          router.push("/login?registered=true");
+        // otherwise, the account could not be created
+        } else {
+          setSubmissionError(true);
         }
+      } catch (err) {
+        setFormError(true);
+      }
 
-    // otherwise, there has been an error
+    // otherwise, there has been an error in the form
     } else {
-      console.log("mistake");
+      // check if the passwords are mismatched
       if (!validatePassword()) {
-        console.log("invalid pw");
         setPwError(true);
       }
       setFormError(true);
-
-      // if (pwError && formError) {
-      //   alert("message")
-      // }
     }
   };
 
   return (
-    <div className="font-sans flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20">
-      {!isSubmitted ? ( <>
+    <div className="font-sans min-h-screen flex flex-col items-center pt-10">
       <p className="font-sans text-6xl text-center sm:text-left">Register</p>
       <div className="h-[2px] bg-gray-300 w-1/2 my-4"></div>
       <p className="mb-6 text-xl">Fill out the form below to register.</p>
@@ -103,15 +110,20 @@ export default function RegisterPage() {
           <input type="password" id="password" required value={formData.password} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Password*"/>
           <input type="password" id="retype" required value={retyped} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Retype password*"/>
         </div>
-        <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Register</button>
         {pwError && (
           <p className="text-red-500 text-sm mb-4">Passwords do not match</p>
         )}
-        {formError && !pwError && (
+        {formError && !pwError && !whitespaceError && (
           <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
         )}
+        {whitespaceError && (
+          <p className="text-red-500 text-sm mb-4">Invalid details</p>
+        )}
+        {submissionError && (
+          <p className="text-red-500 text-sm mb-4">Unable to register</p>
+        )}
+        <button type="submit" className="bg-[#50c878] hover:bg-[#61d989] text-white rounded px-4 py-2 font-bold w-[150px] text-xl">Register</button>
       </form>
-
       <div className="h-[2px] bg-gray-300 my-4 w-1/2"></div>
       <div className="flex gap-1">
         <span className="text-m"><i>Already registered?</i></span>
@@ -119,17 +131,6 @@ export default function RegisterPage() {
           <i>Log in</i>
         </Link>
       </div>
-      </> ) : (
-        <div className="text-center">
-          <p className="font-sans text-6xl">Registration successful!</p>
-          <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-          <Link href="/login">
-            <button className="bg-[#4a90e2] hover:bg-[#5ba1f3] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-              Log in
-            </button>
-          </Link>
-        </div>
-      )}
     </div>
   );
 }
