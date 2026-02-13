@@ -16,6 +16,7 @@ export default function ApplicationListPage() {
   const deleted = searchParams.get("deleted") || false;
   const notsaved = searchParams.get("notsaved") || false;
   const savedjob = searchParams.get("savedjob") || false;
+  const id = searchParams.get("id") || -1;
 
   const router = useRouter();
   const [sortBy, setSortBy] = useState("dateDesc");
@@ -64,7 +65,6 @@ export default function ApplicationListPage() {
     setShowFilter(true);
   };
 
-
   const sortedApplications = [...applications].sort((a, b) => {
     switch (sortBy) {
       case "dateAsc":
@@ -76,36 +76,25 @@ export default function ApplicationListPage() {
       case "company":
         return a.company.localeCompare(b.company);
 
-      case "status":
-        return a.status.localeCompare(b.status);
+      case "status": {
+        const statusA = a.status?.trim();
+        const statusB = b.status?.trim();
+
+        // if A is empty and B is not, A goes after B
+        if (!statusA && statusB) return 1;
+
+        // if B is empty and A is not, B goes after A
+        if (statusA && !statusB) return -1;
+
+        // if both are empty or filled, use normal alphabetical sort
+        return (statusA || "").localeCompare(statusB || "");
+      }
 
       default:
         return 0;
     }
   });
   
-  useEffect(() => {
-    const fetchApps = async () => {
-      const res = await fetch("/api/applicationlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(filters),
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      setApplications(data.applications);
-      setLoaded(true);
-      if (applications.length === 0) {
-        setEmptyFilter(true);
-      }
-
-      setAppId(data.applications.id);
-    };
-
-    fetchApps();
-  }, [filters]);
-
   useEffect(() => {
     if (edited === "true") {
       setShowEditSuccess(true);
@@ -148,11 +137,13 @@ export default function ApplicationListPage() {
   useEffect(() => {
     if (deleted === "true") {
       setShowDelSuccess(true);
-
+      console.log("ID: ", id);
+      setApplications(prev =>
+        prev.filter(app => app.id !== Number(id))
+      );
       const timer = setTimeout(() => {
         setShowDelSuccess(false);
         router.replace("/applicationlist");
-        router.refresh();
       }, 3000);
 
       return () => clearTimeout(timer);
@@ -177,7 +168,6 @@ export default function ApplicationListPage() {
     setSelectedApp(null);
   };
 
-
   const formatWorkSetting = (settings: string[]) => {
     let res = "";
     settings.forEach(function (item) {
@@ -192,25 +182,47 @@ export default function ApplicationListPage() {
     return res.slice(0, -1);
   };
 
+   useEffect(() => {
+    const fetchApps = async () => {
+      const res = await fetch("/api/applicationlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(filters),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      setApplications(data.applications);
+      setLoaded(true);
+      if (applications.length === 0) {
+        setEmptyFilter(true);
+      }
+
+      setAppId(data.applications.id);
+    };
+
+    fetchApps();
+  }, [filters]);
+
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
       {showEditSuccess && (
-        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+        <div className="fixed bottom centre z-50 bg-[#82b1b1] border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Application updated successfully
         </div>
       )}
       {showDelSuccess && (
-        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+        <div className="fixed bottom centre z-50 bg-[#82b1b1] border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Application deleted successfully
         </div>
       )}
       {showNoSave && (
-        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+        <div className="fixed bottom centre z-50 bg-[#82b1b1] border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Application not saved
         </div>
       )}
       {showSavedJob && (
-        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+        <div className="fixed bottom centre z-50 bg-[#82b1b1] border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Application saved successfully
         </div>
       )}

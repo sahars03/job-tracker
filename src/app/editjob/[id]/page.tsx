@@ -10,6 +10,7 @@ export default function EditJobPage() {
   const id = Number(params.id);
   const router = useRouter();
   const [loaded, setLoaded] = useState(false);
+  const [whitespaceError, setWhitespaceError] = useState(false);
 
   // state to manage form submission
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -86,6 +87,11 @@ export default function EditJobPage() {
     }
   };
   
+  // checks if the given field contains any whitespace, which would make it invalid
+  const validateField = (field: string) => {
+    return field.length <= field.trim().length;
+  }
+  
   // validates form data by checking if all the required fields have been filled in
   const validateForm = () => {
     // list of required fields
@@ -99,12 +105,37 @@ export default function EditJobPage() {
 
     // size of the list of work settings selected
     const isWorkSettingSelected = formData.workSetting.length > 0;
+
+    for (const [key, value] of Object.entries(formData)) {
+      if (key === "jobType") {
+        continue;
+      }
+
+      if (key === "dateApplied") {
+        if (new Date(value).getTime() > Date.now()) {
+          setWhitespaceError(true);
+          return false;
+        }
+      }
+
+      if (typeof value === "string") {
+        console.log(key, value);
+        if (!validateField(value)) {
+          setWhitespaceError(true);
+          return false;
+        };
+      };
+    }
     
     // check if all required fields are filled and at least one work setting has been selected
-    return required.every(field => field !== "") && isWorkSettingSelected;
+    return required.every(field => field !== "" && validateField(field)) && isWorkSettingSelected;
   };
 
   const handleSubmit = async () => {
+
+    setFormError(false);
+    setWhitespaceError(false);
+    
     if (!validateForm()) {
       setFormError(true);
       return;
@@ -196,8 +227,11 @@ export default function EditJobPage() {
             </button>
           </div>
         </form>
-        {formError && (
+        {formError && !whitespaceError && (
           <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
+        )}
+        {whitespaceError && (
+          <p className="text-red-500 text-sm mb-4">Invalid details</p>
         )}
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>

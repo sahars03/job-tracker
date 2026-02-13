@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ApplicationFilters } from "@/src/types/ApplicationFilters";
+import App from "next/app";
 
 type Props = {
   isOpen: boolean;
@@ -13,14 +14,16 @@ type Props = {
 export default function FilterModal({ isOpen, onApply, onClose }: Props) {
   const [draftFilters, setDraftFilters] = useState<ApplicationFilters>({
     workSetting: { inperson: false, hybrid: false, remote: false },
-    jobType: null,
+    jobType: undefined,
   });
+
+  const [valid, setValid] = useState(true);
 
   const DEFAULT_FILTERS: ApplicationFilters = {
     jobTitle: "",
     company: "",
     location: "",
-    jobType: undefined,
+    jobType: null,
     workSetting: {
       inperson: false,
       hybrid: false,
@@ -32,11 +35,49 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
     stagereached: "",
   };
 
+  // checks if the given field contains any whitespace, which would make it invalid
+  const validateField = (field: string) => {
+    console.log(field.length);
+    console.log(field.trim().length);
+    console.log(field.trim());
+    return field === "" || field.length <= field.trim().length;
+  }
+
+  const validFilters = (filters: ApplicationFilters) => {
+    setValid(true);
+    console.log(">?");
+    for (const [key, value] of Object.entries(filters)) {
+      if (key === "jobType") {
+        continue;
+      }
+
+      if (typeof value === "string") {
+        console.log(key, value);
+        if (!validateField(value)) {
+          console.log("ohhhh");
+          console.log(key, value);
+          setValid(false);
+          return false;
+        };
+      };
+    }
+
+    const from = filters.dateFrom;
+    const to = filters.dateTo;
+
+    if (from && to && from > to) {
+      setValid(false);
+      return false;
+    };
+
+    return true;
+  }
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl">
+<div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
+  <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl max-h-[80vh] overflow-y-auto">
         <button onClick={onClose} className="absolute text-xl top-1 right-2 text-gray-500 hover:text-gray-700">
           &times;
         </button>
@@ -75,22 +116,22 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
 
             <label className="flex items-center gap-1">Job type</label>
             <div className="flex items-center gap-4">
-              {(["full-time", "part-time"] as const).map((type) => (
-                <label key={type} className="flex items-center gap-2">
+              {(["full-time", "part-time"] as const).map((key) => (
+                <label key={key} className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="jobType"
-                    value={type}
-                    checked={draftFilters.jobType === type}
+                    value={key}
+                    checked={draftFilters.jobType === key}
                     onChange={() =>
                       setDraftFilters({
                         ...draftFilters,
-                        jobType: type,
+                        jobType: key,
                       })
                     }
                     className="text-blue-500 focus:ring-blue-200"
                   />
-                  {type === "full-time" ? "Full-time" : "Part-time"}
+                  {key === "full-time" ? "Full-time" : "Part-time"}
                 </label>
               ))}
             </div>
@@ -98,9 +139,11 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
             <label className="flex items-center">Work setting</label>
             <div className="flex items-center gap-4"> {(["inperson", "hybrid", "remote"] as const).map((key) => (
               <label key={key} className="flex gap-2 items-center">
-                <input type="checkbox" checked={draftFilters.workSetting?.[key]}
+                <input 
+                type="checkbox" 
+                checked={draftFilters.workSetting?.[key]}
                 onChange={() => setDraftFilters({ ...draftFilters, workSetting: { ...draftFilters.workSetting!, [key]: !draftFilters.workSetting?.[key], }, }) } />
-                <span className="capitalize">{key}</span> 
+                {key === "inperson" ? "In-person" : <span className="capitalize">{key}</span>} 
               </label> ))} 
             </div>
 
@@ -151,7 +194,7 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
             <label className="flex items-center gap-1">Status</label>
             <input
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-              placeholder={draftFilters.status || "Status"}
+              placeholder={"Status"}
               onChange={(e) =>
                 setDraftFilters({ ...draftFilters, status: e.target.value })
               }
@@ -168,12 +211,20 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
 
           </div>
         </div>
+        <div className="flex justify-center gap-4 mt-2">
+
+        {!valid && (
+          <p className="text-red-500 text-sm mb-4">Invalid filters</p>
+        )}
+
+        </div>
         <div className="flex flex-row justify-center gap-4 mt-2">
           <button
             type="button"
             onClick={() => {
-              onApply(DEFAULT_FILTERS);
+              setValid(true);
               setDraftFilters(DEFAULT_FILTERS);
+              onApply(DEFAULT_FILTERS);
             }}
             className="px-4 py-2 text-sm border rounded disabled:opacity-50"
           >
@@ -184,8 +235,10 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
             type="button"
             className="bg-[#50c878] text-white px-4 py-2 rounded"
             onClick={() => {
-              onApply(draftFilters);
-              onClose();
+              if (validFilters(draftFilters)) {
+                onApply(draftFilters);
+                onClose();
+              };
             }}
           >
             Apply

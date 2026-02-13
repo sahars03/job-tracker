@@ -28,7 +28,7 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
 
       setShowDeleteConfirm(false);
       onClose();
-      router.push("/applicationlist?deleted=true");
+      router.replace(`/applicationlist?deleted=true&id=${selectedApp.id}`);
 
     } catch (err) {
       console.error("Delete failed:", err);
@@ -50,8 +50,8 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
   };
 
   return (
-      <div className="fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
-        <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl">
+<div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
+  <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl max-h-[80vh] overflow-y-auto">
           <button onClick={onClose} className="absolute text-xl top-1 right-2 text-gray-500 hover:text-gray-700">
             &times;
           </button> 
@@ -64,7 +64,7 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
           <div className="h-[2px] bg-gray-300 w-full my-3"></div>
           <p><span className="font-sans font-semibold">Location:</span> {selectedApp.location}</p>
           <p><span className="font-sans font-semibold">Date Applied:</span> {new Date(selectedApp.dateApplied).toLocaleDateString()}</p>
-          <p><span className="font-sans font-semibold">Job Type:</span> {selectedApp.jobType}</p>
+          <p><span className="font-sans font-semibold">Job Type:</span> {selectedApp.jobType.charAt(0).toUpperCase()+selectedApp.jobType.slice(1)}</p>
           <p><span className="font-sans font-semibold">Work Setting:</span> {formatWorkSetting(selectedApp.workSetting)}</p>
             {selectedApp.stageReached && (
               <p><span className="font-sans font-semibold">Stage Reached:</span> {selectedApp.stageReached}</p>
@@ -85,7 +85,6 @@ const ApplicationModal = ({ isOpen, selectedApp, onClose, onDelete }: Applicatio
           </button>
           </div>
 
-        {/* Delete Confirmation Dialog */}
         {showDeleteConfirm && (
         <div className="fixed inset-0 backdrop-blur flex items-center border-black justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">

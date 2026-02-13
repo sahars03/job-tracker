@@ -12,6 +12,7 @@ export async function POST(req: Request) {
   };
 
   const filters = await req.json();
+  console.log(filters);
 
   let query = `
     SELECT *
@@ -37,12 +38,12 @@ export async function POST(req: Request) {
     values.push(`%${filters.location}%`);
   }
 
-  if (filters.jobType?.fulltime) {
-    query += ` AND job_type = "fulltime"`;
+  if (filters.jobType === "full-time") {
+    query += ` AND job_type = 'full-time'`;
   }
 
-  if (filters.jobType?.parttime) {
-    query += ` AND job_type = "parttime"`;
+  if (filters.jobType === "part-time") {
+    query += ` AND job_type = 'part-time'`;
   }
 
   const selectedWorkSettings: string[] = [];
