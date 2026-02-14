@@ -1,13 +1,16 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect, type ChangeEvent } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function EditAccountPage() {
-  const [loaded, setLoaded] = useState(false);
 
   const router = useRouter();
+
+  // state for changing the display if the page has loaded
+  const [loaded, setLoaded] = useState(false);
+
+  // holds the data that the user inputs
   const [formData, setFormData] = useState({
     username: "",
     email: "",

@@ -5,12 +5,14 @@ import Link from "next/link";
 import { JobApplication } from "@/src/types/JobApplication";
 
 export default function AddNewJobPage() {
-  // state to manage form submission
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  // state to manage form error
+
+  const router = useRouter();
+
+  // states to manage form error
   const [formError, setFormError] = useState(false);
+  const [whitespaceError, setWhitespaceError] = useState(false);
+
   // state to manage and hold form data
-  // TODO: replace with actual ID 
   const [formData, setFormData] = useState<JobApplication>({
     id: 0,
     jobTitle: "",
@@ -23,15 +25,13 @@ export default function AddNewJobPage() {
     stageReached: "",
     notes: "",
   });
-  const [whitespaceError, setWhitespaceError] = useState(false);
 
-  const router = useRouter();
   // handles input changes for text inputs, radio buttons, and checkboxes
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // input that triggered the change event
     const target = e.target as HTMLInputElement;
     // destructure the target to extract relevant information
-    const { id, value, type, checked, name } = target;
+    const {id, value, type, checked, name} = target;
 
     // if the input type is a checkbox, it means that the user is (de)selecting a work setting
     if (type === "checkbox") {
@@ -44,16 +44,14 @@ export default function AddNewJobPage() {
       } else {
           newWorkSettings = newWorkSettings.filter(setting => setting !== value);
       }
+
       // update the formData state with the new work settings list
-      setFormData(prev => ({
-        ...prev, workSetting: newWorkSettings
-      })); 
+      setFormData(prev => ({...prev, workSetting: newWorkSettings}));
+
     // otherwise, update the formData state with the new value
     // depending on what information is available, either the id or name will be used as the key for updating
     } else {
-      setFormData(prev => ({ 
-        ...prev, [id || name]: value
-      }));
+      setFormData(prev => ({...prev, [id || name]: value}));
     }
   };
   
@@ -76,11 +74,13 @@ export default function AddNewJobPage() {
     // size of the list of work settings selected
     const isWorkSettingSelected = formData.workSetting.length > 0;
 
+    // iterate through the data
     for (const [key, value] of Object.entries(formData)) {
       if (key === "jobType") {
         continue;
       }
-
+      
+      // validate the date to make sure it is not in the future
       if (key === "dateApplied") {
         if (new Date(value).getTime() > Date.now()) {
           setWhitespaceError(true);
@@ -88,6 +88,7 @@ export default function AddNewJobPage() {
         }
       }
 
+      // validate string inputs to make sure they do not contain trailing whitespace
       if (typeof value === "string") {
         console.log(key, value);
         if (!validateField(value)) {
@@ -97,113 +98,116 @@ export default function AddNewJobPage() {
       };
     }
     
-    // check if all required fields are filled and at least one work setting has been selected
+    // check if all required fields are filled correctly and at least one work setting has been selected
     return required.every(field => field !== "" && validateField(field)) && isWorkSettingSelected;
   };
 
+  // handles the submission of a new job
   const handleSubmit = async () => {
-
+    // initially assume there are no errors with the form
     setFormError(false);
     setWhitespaceError(false);
 
+    // if the form is invalid, do not proceed with saving the job
     if (!validateForm()) {
       setFormError(true);
       return;
     }
 
     try {
+      // POST request for storing the new job
       const res = await fetch("/api/addnewjob", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(formData),
       });
-
+      
+      // if the job is not able to be saved, throw an error
       if (!res.ok) {
         throw new Error("Failed to save application");
       }
-
+      
+      // update state and naviagte to the list of applications
       setFormError(false);
-      setIsSubmitted(true);
       router.replace("/applicationlist?savedjob=true");
     } catch (err) {
-      console.error(err);
       setFormError(true);
     }
   };
 
-  // display depends on if the form information has been submitted
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
-        <p className="font-sans text-6xl">Create new application</p>
-        <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-        <form className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
-          <div className="mb-4 flex flex-col gap-2 w-3/4">
-            <label className="flex items-center gap-1">Job title<span className="text-red-500">*</span></label>
-            <input type="text" id="jobTitle" value={formData.jobTitle} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Job title"/>
-            <label className="flex items-center gap-1">Company<span className="text-red-500">*</span></label>
-            <input type="text" id="company" value={formData.company} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Company"/>
-            <label className="flex items-center gap-1">Location<span className="text-red-500">*</span></label>
-            <input type="text" id="location" value={formData.location} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Location"/>
-            <label className="flex items-center gap-1">Job type<span className="text-red-500">*</span></label>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2">
-                <input type="radio" name="jobType" value="full-time" checked={formData.jobType=="full-time"} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
+      <p className="font-sans text-6xl">Create new application</p>
+      <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
+      <form className="flex flex-col gap-4 w-full items-center justify-center max-w-md">
+        <div className="mb-4 flex flex-col gap-2 w-3/4">
+          <label className="flex items-center gap-1">Job title<span className="text-red-500">*</span></label>
+          <input type="text" id="jobTitle" value={formData.jobTitle} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Job title"/>
+          <label className="flex items-center gap-1">Company<span className="text-red-500">*</span></label>
+          <input type="text" id="company" value={formData.company} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Company"/>
+          <label className="flex items-center gap-1">Location<span className="text-red-500">*</span></label>
+          <input type="text" id="location" value={formData.location} onChange={handleInputChange} required className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Location"/>
+          <label className="flex items-center gap-1">Job type<span className="text-red-500">*</span></label>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2">
+              <input type="radio" name="jobType" value="full-time" checked={formData.jobType=="full-time"} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
                 Full-time
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" name="jobType" value="part-time" checked={formData.jobType=="part-time"} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="radio" name="jobType" value="part-time" checked={formData.jobType=="part-time"} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
                 Part-time
-              </label>
-            </div>
-            <label className="flex items-center gap-1">Work setting<span className="text-red-500">*</span></label>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" name="workSetting" value="inperson" checked={formData.workSetting.includes("inperson")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                In-person
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="checkbox" name="workSetting" value="hybrid" checked={formData.workSetting.includes("hybrid")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                Hybrid
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="checkbox" name="workSetting" value="remote" checked={formData.workSetting.includes("remote")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                Remote
-              </label>
-            </div>
-            <label className="flex items-center gap-1">Date applied<span className="text-red-500">*</span></label>
-            <input type="date" id="dateApplied" value={formData.dateApplied} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Date applied"/>
-            <label className="flex items-center gap-1">Status</label>
-            <input type="text" id="status" value={formData.status} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Status"/>
-            <label className="flex items-center gap-1">Stage reached</label>
-            <input type="text" id="stageReached" value={formData.stageReached} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Stage reached"/>
-            <label className="flex items-center gap-1">Notes</label>
-            <textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} rows={4} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Notes"/>
-            </div>
-          <div className="flex flex-row justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => router.replace("/applicationlist?notsaved=true")}
-              className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl whitespace-normal text-center"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"            >
-              Save
-            </button>
+            </label>
           </div>
-        </form>
-        {formError && !whitespaceError && (
-          <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
-        )}
-        {whitespaceError && (
-          <p className="text-red-500 text-sm mb-4">Invalid details</p>
-        )}
-        <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-        <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>
+          <label className="flex items-center gap-1">Work setting<span className="text-red-500">*</span></label>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="workSetting" value="inperson" checked={formData.workSetting.includes("inperson")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
+                In-person
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="workSetting" value="hybrid" checked={formData.workSetting.includes("hybrid")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
+                Hybrid
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="workSetting" value="remote" checked={formData.workSetting.includes("remote")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
+                Remote
+            </label>
+          </div>
+          <label className="flex items-center gap-1">Date applied<span className="text-red-500">*</span></label>
+          <input type="date" id="dateApplied" value={formData.dateApplied} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Date applied"/>
+          <label className="flex items-center gap-1">Status</label>
+          <input type="text" id="status" value={formData.status} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Status"/>
+          <label className="flex items-center gap-1">Stage reached</label>
+          <input type="text" id="stageReached" value={formData.stageReached} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Stage reached"/>
+          <label className="flex items-center gap-1">Notes</label>
+          <textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} rows={4} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" placeholder="Notes"/>
+        </div>
+        <div className="flex flex-row justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => router.replace("/applicationlist?notsaved=true")}
+            className="bg-[#4a90e2] hover:bg-[#5ba1f3] mb-4 text-white rounded px-4 py-2 font-bold w-[150px] text-xl whitespace-normal text-center"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+      {formError && !whitespaceError && (
+        <p className="text-red-500 text-sm mb-4">Please fill in all required fields</p>
+      )}
+      {whitespaceError && (
+        <p className="text-red-500 text-sm mb-4">Invalid details</p>
+      )}
+      <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
+      <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>
     </div> 
   );
 }

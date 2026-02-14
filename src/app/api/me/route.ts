@@ -4,42 +4,43 @@ import { cookies } from "next/headers";
 import pool from "@/backend/db";
 import bcrypt from "bcrypt";
 
+// GET for checking if the user is logged in
 export async function GET() {
+
+  // check the user who has logged in
   const cookieStore = await cookies();
-  const token = cookieStore.get("auth")?.value; 
+  const token = cookieStore.get("auth")?.value;
 
   if (!token) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({error: "Not authenticated" }, {status: 401});
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: number;
-      username: string;
-    };
+  // verify the user's details
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId: number;
+    username: string;
+  };
 
-    // 🔑 Fetch email using userId
-    const result = await pool.query(
-      "SELECT email FROM users WHERE id = $1",
-      [decoded.userId]
-    );
+  // check if information about the user can be found
+  const result = await pool.query(
+    "SELECT email FROM users WHERE id = $1",
+    [decoded.userId]
+  );
 
-    if (result.rowCount === 0) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      loggedIn: true,
-      userId: decoded.userId,
-      username: decoded.username,
-      email: result.rows[0].email, // 👈 now included
-    });
-
-  } catch {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  if (result.rowCount === 0) {
+    return NextResponse.json({error: "User not found"}, {status: 404});
   }
+
+  // return the user's login status and information
+  return NextResponse.json({
+    loggedIn: true,
+    userId: decoded.userId,
+    username: decoded.username,
+    email: result.rows[0].email,
+  });
 }
 
+// PUT for updating the user's information
 export async function PUT(req: Request) {
     try {
     const cookieStore = await cookies();

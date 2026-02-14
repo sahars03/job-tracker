@@ -3,35 +3,35 @@ import pool from "@/backend/db";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
+// GET for retrieving the contents of a specific job application
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  {params}: {params: Promise<{id: string}>}
 ) {
   try {
+    // check the user who has logged in
     const cookieStore = await cookies();
     const token = cookieStore.get("auth")?.value;
 
     if (!token) {
-      return NextResponse.json(
-        { error: "Not authenticated" },
-        { status: 401 }
-      );
+      return NextResponse.json({error: "Not authenticated" }, {status: 401});
     }
 
-    const { id } = await params;
+    // get the ID of the job being viewed
+    const {id} = await params;
     const applicationId = Number(id);
 
+    // check if the ID is a number
     if (isNaN(applicationId)) {
-      return NextResponse.json(
-        { error: "Invalid ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({error: "Invalid ID" }, {status: 400});
     }
 
+    // verify the user's details
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
 
+    // SELECT query to return the job information
     const result = await pool.query(
       `SELECT *
        FROM applications
@@ -39,14 +39,15 @@ export async function GET(
       [applicationId, decoded.userId]
     );
 
+    // if nothing has been returned from the query, the job does not exist
     if (result.rows.length === 0) {
-        console.log("oops");
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({error: "Not found"}, {status: 404});
     }
 
-    console.log(result.rows[0]);
+    // job information
     const row = result.rows[0];
 
+    // return the information
     return NextResponse.json({
       id: row.id,
       jobTitle: row.job_title || "",
@@ -59,39 +60,40 @@ export async function GET(
       stageReached: row.stage_reached || "",
       notes: row.notes || "",
     });
-
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({error: "Server error"}, {status: 500});
   }
 }
 
+// PUT for editing the contents of a job application
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  {params}: {params: Promise<{id: string}>}
 ) {
   try {
+    // check the user who has logged in
     const cookieStore = await cookies();
     const token = cookieStore.get("auth")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({error: "Not authenticated" }, {status: 401});
     }
 
-    const { id } = await params;
+    // get the ID of the job being viewed
+    const {id} = await params;
     const applicationId = Number(id);
 
+    // check if the ID is a number
     if (isNaN(applicationId)) {
-      return NextResponse.json(
-        { error: "Invalid ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({error: "Invalid ID" }, {status: 400});
     }
 
+    // verify the user's details
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
 
+    // new job information submitted in the form
     const {
       jobTitle,
       company,
@@ -104,6 +106,7 @@ export async function PUT(
       notes,
     } = await req.json();
 
+    // UPDATE query for changing the job's information
     const result = await pool.query(
       `
       UPDATE applications
@@ -119,8 +122,7 @@ export async function PUT(
         notes = $9
       WHERE id = $10 AND user_id = $11
       RETURNING id
-      `,
-      [
+      `, [
         jobTitle,
         company,
         location,
@@ -135,62 +137,54 @@ export async function PUT(
       ]
     );
 
+    // if nothing is returned, the job does not exist
     if (result.rowCount === 0) {
-        return NextResponse.json(
-            { error: "Application not found or unauthorised" },
-            { status: 404 }
-      );
+      return NextResponse.json({ error: "Application not found"}, {status: 404});
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({success: true}, {status: 200});
   } catch (err) {
-    console.error("Update error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({error: "Server error"}, {status: 500});
   }
 }
 
+// DELETE for deleting a job application
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // check the user who has logged in
     const cookieStore = await cookies();
     const token = cookieStore.get("auth")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({error: "Not authenticated" }, {status: 401});
     }
 
-    const { id } = await params;
+    // get the ID of the job being viewed
+    const {id} = await params;
     const applicationId = Number(id);
 
+    // check if the ID is a number
     if (isNaN(applicationId)) {
-      return NextResponse.json(
-        { error: "Invalid ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({error: "Invalid ID" }, {status: 400});
     }
 
+    // verify the user's details
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
 
+    // DELETE query for deleting the application
     await pool.query(
       `DELETE FROM applications
        WHERE id = $1 AND user_id = $2`,
       [applicationId, decoded.userId]
     );
 
-    return NextResponse.json(
-      { message: "Application deleted" },
-      { status: 200 }
-    );
-
+    return NextResponse.json({message: "Application deleted" }, {status: 200});
   } catch (err) {
-    console.error("Delete error:", err);
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({error: "Server error"}, {status: 500});
   }
 }

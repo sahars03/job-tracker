@@ -2,20 +2,23 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, type ChangeEvent } from "react";
-import Link from "next/link";
 import { JobApplication } from "@/src/types/JobApplication";
 
 export default function EditJobPage() {
+
+  const router = useRouter();
+
+  // state for changing the display if the page has loaded
+  const [loaded, setLoaded] = useState(false);
+
+  // job ID
   const params = useParams();
   const id = Number(params.id);
-  const router = useRouter();
-  const [loaded, setLoaded] = useState(false);
+
+  // states to manage form errors
+  const [formError, setFormError] = useState(false);
   const [whitespaceError, setWhitespaceError] = useState(false);
 
-  // state to manage form submission
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  // state to manage form error
-  const [formError, setFormError] = useState(false);
   // state to manage and hold form data
   const [formData, setFormData] = useState<JobApplication>({
     id: id,
@@ -30,28 +33,23 @@ export default function EditJobPage() {
     notes: ""
   });
 
+  // formats dates
   const formatDateForInput = (isoDate: string) => {
     return isoDate.split("T")[0];
   };
 
   useEffect(() => {
     const fetchJob = async () => {
+      // GET request for the job
       const res = await fetch(`/api/application/${params.id}`, {
         credentials: "include",
       });
 
-      if (!res.ok) {
-        console.error("Failed to load job");
-        return;
-      }
-
+      // store the job information
       const data: JobApplication = await res.json();
-      setFormData({
-        ...data,
-        dateApplied: formatDateForInput(data.dateApplied),
-      });
+      setFormData({...data, dateApplied: formatDateForInput(data.dateApplied),});
     };
-      setLoaded(true);
+    setLoaded(true);
 
     fetchJob();
   }, [params.id]);
@@ -75,15 +73,11 @@ export default function EditJobPage() {
           newWorkSettings = newWorkSettings.filter(setting => setting !== value);
       }
       // update the formData state with the new work settings list
-      setFormData(prev => ({
-        ...prev, workSetting: newWorkSettings
-      })); 
+      setFormData(prev => ({...prev, workSetting: newWorkSettings})); 
     // otherwise, update the formData state with the new value
     // depending on what information is available, either the id or name will be used as the key for updating
     } else {
-      setFormData(prev => ({ 
-        ...prev, [id || name]: value
-      }));
+      setFormData(prev => ({...prev, [id || name]: value}));
     }
   };
   
@@ -106,11 +100,13 @@ export default function EditJobPage() {
     // size of the list of work settings selected
     const isWorkSettingSelected = formData.workSetting.length > 0;
 
+    // iterate through the data
     for (const [key, value] of Object.entries(formData)) {
       if (key === "jobType") {
         continue;
       }
 
+      // validate the date to make sure it is not in the future
       if (key === "dateApplied") {
         if (new Date(value).getTime() > Date.now()) {
           setWhitespaceError(true);
@@ -118,6 +114,7 @@ export default function EditJobPage() {
         }
       }
 
+      // validate string inputs to make sure they do not contain trailing whitespace
       if (typeof value === "string") {
         console.log(key, value);
         if (!validateField(value)) {
@@ -127,21 +124,24 @@ export default function EditJobPage() {
       };
     }
     
-    // check if all required fields are filled and at least one work setting has been selected
+    // check if all required fields are filled correctly and at least one work setting has been selected
     return required.every(field => field !== "" && validateField(field)) && isWorkSettingSelected;
   };
 
+  // handles the submission of the edited job
   const handleSubmit = async () => {
-
+    // initially assume there are no errors with the form
     setFormError(false);
     setWhitespaceError(false);
     
+    // if the form is invalid, do not proceed with editing the job
     if (!validateForm()) {
       setFormError(true);
       return;
     }
 
     try {
+      // PUT request for editing the job
       const res = await fetch(`/api/application/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -149,14 +149,14 @@ export default function EditJobPage() {
         body: JSON.stringify(formData),
       });
 
+      // if the job is not able to be edited, throw an error
       if (!res.ok) {
         throw new Error("Failed to save application");
       }
 
+      // update state and naviagte to the list of applications
       setFormError(false);
-      setIsSubmitted(true);
       router.push("/applicationlist?edited=true");
-      
     } catch (err) {
       console.error(err);
       setFormError(true);
@@ -180,26 +180,26 @@ export default function EditJobPage() {
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2">
                 <input type="radio" name="jobType" value="full-time" checked={formData.jobType=="full-time"} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                Full-time
+                  Full-time
               </label>
               <label className="flex items-center gap-2">
                 <input type="radio" name="jobType" value="part-time" checked={formData.jobType=="part-time"} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                Part-time
+                  Part-time
               </label>
             </div>
             <label className="flex items-center gap-1">Work setting<span className="text-red-500">*</span></label>
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2">
                 <input type="checkbox" name="workSetting" value="inperson" checked={formData.workSetting.includes("inperson")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                In-person
+                  In-person
               </label>
               <label className="flex items-center gap-2">
                 <input type="checkbox" name="workSetting" value="hybrid" checked={formData.workSetting.includes("hybrid")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                Hybrid
+                  Hybrid
               </label>
               <label className="flex items-center gap-2">
                 <input type="checkbox" name="workSetting" value="remote" checked={formData.workSetting.includes("remote")} onChange={handleInputChange} required className="text-blue-500 focus:ring-blue-200"/>
-                Remote
+                 Remote
               </label>
             </div>
             <label className="flex items-center gap-1">Date applied<span className="text-red-500">*</span></label>
@@ -222,7 +222,8 @@ export default function EditJobPage() {
             <button
               type="submit"
               onClick={handleSubmit}
-              className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"            >
+              className="bg-[#50c878] hover:bg-[#61d989] mb-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl"
+            >
               Save
             </button>
           </div>
@@ -236,9 +237,9 @@ export default function EditJobPage() {
         <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
         <p className="text-gray-500 text-sm"><span className="text-red-500">*</span> Required fields</p>
       </> ) : (
-      <div className="flex justify-center items-center h-screen">
-        <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
-      </div>
+        <div className="flex justify-center items-center h-screen">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
+        </div>
       )}
     </div> 
   );

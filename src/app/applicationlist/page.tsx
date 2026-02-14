@@ -9,8 +9,14 @@ import FilterModal from "@/src/components/FilterModal";
 
 export default function ApplicationListPage() {
 
+  const router = useRouter();
+  
+  // state variables for application lists
   const [applications, setApplications] = useState<JobApplication[]>([]);
-  const [appId, setAppId] = useState(0);
+  const [sortBy, setSortBy] = useState("dateDesc");
+  const [emptyFilter, setEmptyFilter] = useState(false);
+
+  // possible parameters from the URL
   const searchParams = useSearchParams();
   const edited = searchParams.get("edited") || false;
   const deleted = searchParams.get("deleted") || false;
@@ -18,15 +24,13 @@ export default function ApplicationListPage() {
   const savedjob = searchParams.get("savedjob") || false;
   const id = searchParams.get("id") || -1;
 
-  const router = useRouter();
-  const [sortBy, setSortBy] = useState("dateDesc");
-  const [emptyFilter, setEmptyFilter] = useState(false);
-
+  // state variables for user messages
   const [showEditSuccess, setShowEditSuccess] = useState(false);
   const [showDelSuccess, setShowDelSuccess] = useState(false);
   const [showNoSave, setShowNoSave] = useState(false);
   const [showSavedJob, setShowSavedJob] = useState(false);
 
+  // default filters (i.e empty filters) for when the filters are reset
   const DEFAULT_FILTERS: ApplicationFilters = {
     jobTitle: "",
     company: "",
@@ -43,40 +47,40 @@ export default function ApplicationListPage() {
     stagereached: "",
   };
 
+  // state variables for holding filter information
   const [filters, setFilters] = useState<ApplicationFilters>(DEFAULT_FILTERS);
   const [showFilter, setShowFilter] = useState(false);
-  const [draftFilters, setDraftFilters] =
-    useState<ApplicationFilters>(DEFAULT_FILTERS);
+  const [draftFilters, setDraftFilters] = useState<ApplicationFilters>(DEFAULT_FILTERS);
+
+  // state for changing the display if the page has loaded
   const [loaded, setLoaded] = useState(false);
 
-  const handleApplyFilters = () => {
-    setFilters(draftFilters);
-    setShowFilter(false);
-  };
+  // state for modal (null when no application is open)
+  const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
+  // handles when the user clears the filters
   const handleClearFilters = () => {
+    // reset the filters to their default
     setDraftFilters(DEFAULT_FILTERS);
     setFilters(DEFAULT_FILTERS);
     setShowFilter(false);
   };
 
-  const openFilterModal = () => {
-    setDraftFilters(filters); // clone current applied filters
-    setShowFilter(true);
-  };
-
+  // sorts the applications based on the sort that is selected by the user
   const sortedApplications = [...applications].sort((a, b) => {
     switch (sortBy) {
       case "dateAsc":
-        return new Date(a.dateApplied).getTime() - new Date(b.dateApplied).getTime();
+        return new Date(a.dateApplied).getTime()-new Date(b.dateApplied).getTime();
 
       case "dateDesc":
-        return new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime();
+        return new Date(b.dateApplied).getTime()-new Date(a.dateApplied).getTime();
 
       case "company":
         return a.company.localeCompare(b.company);
 
       case "status": {
+        // trim the applications' statuses to remove whitespace in case they are blank
         const statusA = a.status?.trim();
         const statusB = b.status?.trim();
 
@@ -95,6 +99,7 @@ export default function ApplicationListPage() {
     }
   });
   
+  // user message for when they have edited an application successfully
   useEffect(() => {
     if (edited === "true") {
       setShowEditSuccess(true);
@@ -108,6 +113,7 @@ export default function ApplicationListPage() {
     }
   }, [edited]);
 
+  // user message for when they have cancelled their edit of an application
   useEffect(() => {
     if (notsaved === "true") {
       setShowNoSave(true);
@@ -121,6 +127,7 @@ export default function ApplicationListPage() {
     }
   }, [notsaved]);
 
+  // user message for when they have saved a new application successfully
   useEffect(() => {
     if (savedjob === "true") {
       setShowSavedJob(true);
@@ -134,13 +141,12 @@ export default function ApplicationListPage() {
     }
   }, [savedjob]);
 
+  // user message for when they have deleted an application successfully
   useEffect(() => {
     if (deleted === "true") {
       setShowDelSuccess(true);
-      console.log("ID: ", id);
-      setApplications(prev =>
-        prev.filter(app => app.id !== Number(id))
-      );
+      setApplications(prev => prev.filter(app => app.id !== Number(id)));
+
       const timer = setTimeout(() => {
         setShowDelSuccess(false);
         router.replace("/applicationlist");
@@ -149,10 +155,6 @@ export default function ApplicationListPage() {
       return () => clearTimeout(timer);
     }
   }, [deleted]);
-
-  // state for modal (null when no application is open)
-  const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
 
   // opens modal
   const openModal = (app: JobApplication) => {
@@ -168,9 +170,13 @@ export default function ApplicationListPage() {
     setSelectedApp(null);
   };
 
+  // formats the display of the work setting(s) for a job
   const formatWorkSetting = (settings: string[]) => {
     let res = "";
+    
+    // iterate through each selected work setting
     settings.forEach(function (item) {
+      // add the formatted version of the work setting to the string with a '/' at the end
       if (item === "inperson") {
         res += "In-person";
       } else {
@@ -179,11 +185,13 @@ export default function ApplicationListPage() {
       res += "/";
     });
 
+    // returned the built string without the extra '/' at the end
     return res.slice(0, -1);
   };
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchApps = async () => {
+      // POST request to get all of the user's applications
       const res = await fetch("/api/applicationlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -191,14 +199,15 @@ export default function ApplicationListPage() {
         credentials: "include",
       });
 
+      // store the applications in state
       const data = await res.json();
       setApplications(data.applications);
       setLoaded(true);
+
       if (applications.length === 0) {
         setEmptyFilter(true);
       }
 
-      setAppId(data.applications.id);
     };
 
     fetchApps();
@@ -226,37 +235,33 @@ export default function ApplicationListPage() {
           Application saved successfully
         </div>
       )}
-      {/* main page */}
       {loaded ? ( <>
-      <p className="font-sans text-6xl">Your Applications</p>
-      <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
-          <div className="flex justify-end w-full max-w-[90%] mb-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowFilter(true)}
-                className="border px-4 py-2 rounded hover:bg-gray-100"
-              >
-                Filter
-              </button>
-              <label className="text-sm font-medium text-gray-600">
-                Sort by:
-              </label>
+        <p className="font-sans text-6xl">Your Applications</p>
+        <div className="h-[2px] bg-gray-300 w-200 my-4"></div>
+        <div className="flex justify-end w-full max-w-[90%] mb-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowFilter(true)}
+              className="border px-4 py-2 rounded hover:bg-gray-100"
+            >
+              Filter
+            </button>
 
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-              >
-                <option value="dateDesc">Date applied (newest)</option>
-                <option value="dateAsc">Date applied (oldest)</option>
-                <option value="company">Company</option>
-                <option value="status">Status</option>
-              </select>
-            </div>
+            <label className="text-sm font-medium text-gray-600">Sort by:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            >
+              <option value="dateDesc">Date applied (newest)</option>
+              <option value="dateAsc">Date applied (oldest)</option>
+              <option value="company">Company</option>
+              <option value="status">Status</option>
+            </select>
           </div>
-      {applications.length > 0 ? ( <>
-       <div className="w-full items-center justify-center max-w-[95%] overflow-x-auto">
-          
+        </div>
+        {applications.length > 0 ? ( <>
+        <div className="w-full items-center justify-center max-w-[95%] overflow-x-auto">  
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-[#82b1b1]">
               <tr>
@@ -271,7 +276,6 @@ export default function ApplicationListPage() {
                 <th className="px-6 py-3 text-left text-s font-bold text-gray-200 tracking-wider">Notes</th>
               </tr>
             </thead>
-            {/**  #deffff*/}
             <tbody className="bg-[#f9efef] divide-y divide-gray-500">
               {sortedApplications.map((app) => (
                 <tr key={app.id}   className="hover:bg-[#93c2c2] cursor-pointer"
@@ -282,12 +286,7 @@ export default function ApplicationListPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {new Date(app.dateApplied).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {/*<span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {app.status}
-                    </span>*/  /* this looks quite nice but i think it should be used in a different place instead */}
-                    {app.status}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.status}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.jobType.charAt(0).toUpperCase()+app.jobType.slice(1)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatWorkSetting(app.workSetting)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.stageReached}</td>
@@ -307,14 +306,13 @@ export default function ApplicationListPage() {
           </table>
         </div>
         <div>
-        <Link href="/addnewjob">
-          <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
-            Add new application
-          </button>
-        </Link>
+          <Link href="/addnewjob">
+            <button className="bg-[#50c878] hover:bg-[#61d989] mt-4 text-white rounded px-4 py-3 font-bold w-[150px] text-xl">
+              Add new application
+            </button>
+          </Link>
         </div>
-        </>
-      ) : (
+      </> ) : (
         emptyFilter ? (
           <div className="text-center">
             <p className="text-gray-500">No results have been found.</p>
@@ -340,20 +338,19 @@ export default function ApplicationListPage() {
           selectedApp={selectedApp!}
           onClose={closeModal}
         />
-    <FilterModal
-      isOpen={showFilter}
-      draftFilters={draftFilters}
-      setDraftFilters={setDraftFilters}
-      onApply={(newFilters) => {
-        setFilters(newFilters);
-      }}
-      onClose={() => setShowFilter(false)}
-    />
-      </>
-      ) : (
-      <div className="flex justify-center items-center h-screen">
-        <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
-      </div>
+        <FilterModal
+          isOpen={showFilter}
+          draftFilters={draftFilters}
+          setDraftFilters={setDraftFilters}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+          }}
+          onClose={() => setShowFilter(false)}
+        />
+      </> ) : (
+        <div className="flex justify-center items-center h-screen">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
+        </div>
       )}
     </div>
   );

@@ -12,13 +12,16 @@ type Props = {
 };
 
 export default function FilterModal({ isOpen, onApply, onClose }: Props) {
+  // draft filters for when the filters are in the process of being set
   const [draftFilters, setDraftFilters] = useState<ApplicationFilters>({
     workSetting: { inperson: false, hybrid: false, remote: false },
     jobType: undefined,
   });
 
+  // state to check if the filters being set are valid
   const [valid, setValid] = useState(true);
 
+  // default filters (i.e. empty filters)
   const DEFAULT_FILTERS: ApplicationFilters = {
     jobTitle: "",
     company: "",
@@ -43,25 +46,27 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
     return field === "" || field.length <= field.trim().length;
   }
 
+  // checks if the given filters are valid
   const validFilters = (filters: ApplicationFilters) => {
+    // initially assume the filters are valid
     setValid(true);
-    console.log(">?");
+
+    // iterate through the filters
     for (const [key, value] of Object.entries(filters)) {
       if (key === "jobType") {
         continue;
       }
 
+      // validate string inputs to make sure they do not contain trailing whitespace
       if (typeof value === "string") {
-        console.log(key, value);
         if (!validateField(value)) {
-          console.log("ohhhh");
-          console.log(key, value);
           setValid(false);
           return false;
         };
       };
     }
 
+    // validate dates to make sure they do not overlap incorrectly
     const from = filters.dateFrom;
     const to = filters.dateTo;
 
@@ -76,8 +81,8 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
   if (!isOpen) return null;
 
   return (
-<div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
-  <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl max-h-[80vh] overflow-y-auto">
+    <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative border border-[#eeeeee] shadow-2xl max-h-[80vh] overflow-y-auto">
         <button onClick={onClose} className="absolute text-xl top-1 right-2 text-gray-500 hover:text-gray-700">
           &times;
         </button>
@@ -123,12 +128,7 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
                     name="jobType"
                     value={key}
                     checked={draftFilters.jobType === key}
-                    onChange={() =>
-                      setDraftFilters({
-                        ...draftFilters,
-                        jobType: key,
-                      })
-                    }
+                    onChange={() => setDraftFilters({...draftFilters, jobType: key,})}
                     className="text-blue-500 focus:ring-blue-200"
                   />
                   {key === "full-time" ? "Full-time" : "Part-time"}
@@ -142,31 +142,21 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
                 <input 
                 type="checkbox" 
                 checked={draftFilters.workSetting?.[key]}
-                onChange={() => setDraftFilters({ ...draftFilters, workSetting: { ...draftFilters.workSetting!, [key]: !draftFilters.workSetting?.[key], }, }) } />
+                onChange={() => setDraftFilters({...draftFilters, workSetting: { ...draftFilters.workSetting!, [key]: !draftFilters.workSetting?.[key], }, })} />
                 {key === "inperson" ? "In-person" : <span className="capitalize">{key}</span>} 
               </label> ))} 
             </div>
 
           </div>
           <div className="flex flex-col gap-2">
-
             <label className="flex items-center">Date applied</label>
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-1">From</label>
                 <input
                   type="date"
-                  value={
-                    draftFilters.dateFrom
-                    ? draftFilters.dateFrom.toISOString().split("T")[0]
-                    : ""
-                  }
-                  onChange={(e) =>
-                    setDraftFilters({
-                    ...draftFilters,
-                    dateFrom: e.target.value ? new Date(e.target.value) : undefined,
-                    })
-                  }
+                  value={draftFilters.dateFrom ? draftFilters.dateFrom.toISOString().split("T")[0] : ""}
+                  onChange={(e) => setDraftFilters({...draftFilters, dateFrom: e.target.value ? new Date(e.target.value) : undefined,})}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
                 />
               </div>
@@ -175,17 +165,8 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
                 <label className="flex items-center gap-1">To</label>
                   <input
                     type="date"
-                    value={
-                      draftFilters.dateTo
-                      ? draftFilters.dateTo.toISOString().split("T")[0]
-                      : ""
-                    }
-                    onChange={(e) =>
-                      setDraftFilters({
-                        ...draftFilters,
-                        dateTo: e.target.value ? new Date(e.target.value) : undefined,
-                      })
-                    }
+                    value={draftFilters.dateTo ? draftFilters.dateTo.toISOString().split("T")[0] : ""}
+                    onChange={(e) => setDraftFilters({...draftFilters, dateTo: e.target.value ? new Date(e.target.value) : undefined,})}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
                   />
               </div>
@@ -195,28 +176,22 @@ export default function FilterModal({ isOpen, onApply, onClose }: Props) {
             <input
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
               placeholder={"Status"}
-              onChange={(e) =>
-                setDraftFilters({ ...draftFilters, status: e.target.value })
-              }
+              onChange={(e) => setDraftFilters({ ...draftFilters, status: e.target.value })}
             />
             <label className="flex items-center gap-1">Stage reached</label>
 
             <input
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
               placeholder={draftFilters.stagereached || "Stage reached"}
-              onChange={(e) =>
-                setDraftFilters({ ...draftFilters, stagereached: e.target.value })
-              }
+              onChange={(e) => setDraftFilters({ ...draftFilters, stagereached: e.target.value })}
             />
 
           </div>
         </div>
         <div className="flex justify-center gap-4 mt-2">
-
-        {!valid && (
-          <p className="text-red-500 text-sm mb-4">Invalid filters</p>
-        )}
-
+          {!valid && (
+            <p className="text-red-500 text-sm mb-4">Invalid filters</p>
+          )}
         </div>
         <div className="flex flex-row justify-center gap-4 mt-2">
           <button
