@@ -293,11 +293,6 @@ export default function ApplicationListPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 relative group">
                     <div className="w-[200px] overflow-hidden text-ellipsis whitespace-nowrap cursor-default">
                       {app.notes}
-                      {app.notes && (
-                        <div className="fixed hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg z-50 w-[300px] whitespace-pre-wrap cursor-default">
-                          {app.notes}
-                        </div>
-                      )}
                     </div>
                   </td>
                 </tr>

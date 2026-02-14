@@ -7,8 +7,8 @@ import { useAuth } from "@/src/context/AuthContext";
 
 export default function AccountPage() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const { refreshAuth } = useAuth();
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
@@ -45,52 +45,50 @@ export default function AccountPage() {
     }
   };
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("api/me", {
-          credentials: "include",
-        });
+  const checkAuth = async () => {
+    console.log("Trying");
+    try {
+      const res = await fetch("api/me", {
+        credentials: "include",
+      });
 
-        if (res.ok) {
-          const data = await res.json();
-          setLoggedIn(true);
-          setUsername(data.username);
-          setEmail(data.email);
-          setLoaded(true);
-        } else {
-          setLoggedIn(false);
-        }
-      } catch {
+      if (res.ok) {
+        const data = await res.json();
+        setUsername(data.username);
+        setEmail(data.email);
+        setLoggedIn(true);
+        setLoaded(true);
+      } else {
         setLoggedIn(false);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch {
+      setLoggedIn(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     checkAuth();
   }, []);
 
-    useEffect(() => {
-      if (searchQuery === "false") {
-        console.log("False");
-        console.log(`Search params: ${searchParams}`);
-          setSearchQuery("");
-          router.replace("/account");
-          router.refresh();    
-      }
-    }, [searchQuery]);
+  useEffect(() => {
+    if (searchQuery === "false") {
+      console.log("False");
+        setSearchQuery("");
+        router.replace("/account");
+        router.refresh();    
+    }
+  }, [searchQuery]);
 
   useEffect(() => {
     if (searchQuery === "true") {
-        console.log(`SearchQuery: ${searchQuery}`);
       setShowUpdateSuccess(true);
 
       const timer = setTimeout(() => {
         setSearchQuery("");
         setShowUpdateSuccess(false);
         router.replace("/account");
-        router.refresh();
       }, 3000);
     
       return () => clearTimeout(timer);

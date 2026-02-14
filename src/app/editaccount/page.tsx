@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function EditAccountPage() {
 
@@ -9,6 +10,14 @@ export default function EditAccountPage() {
 
   // state for changing the display if the page has loaded
   const [loaded, setLoaded] = useState(false);
+  // state variables for tracking if there is an error with the form before or after the registration attempt
+  const [formError, setFormError] = useState(false);
+  const [pwError, setPwError] = useState(false);
+  const [retyped, setRetyped] = useState("");
+  const [submissionError, setSubmissionError] = useState(false);
+  const [whitespaceError, setWhitespaceError] = useState(false);
+
+  const { refreshAuth } = useAuth();
 
   // holds the data that the user inputs
   const [formData, setFormData] = useState({
@@ -17,7 +26,6 @@ export default function EditAccountPage() {
     password: "",
   });
 
-  useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await fetch("api/me", {
@@ -38,15 +46,9 @@ export default function EditAccountPage() {
       }
     };
 
+  useEffect(() => {
     checkAuth();
   }, []);
-
-  const [formError, setFormError] = useState(false);
-  const [formErrorMsg, setFormErrorMsg] = useState("");
-
-  const [pwError, setPwError] = useState(false);
-  const [retyped, setRetyped] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -56,6 +58,16 @@ export default function EditAccountPage() {
     }
   };
 
+  // checks if the given field contains any whitespace, which would make it invalid
+  const validateField = (field: string) => {
+    if (/\s/.test(field)) {
+      setWhitespaceError(true);
+      return false;
+    }
+    return true;
+  }
+
+  // checks if the retyped and original passwords are the same
   const validatePassword = () => {
     // validate other things as well e.g. if there is already a user with the given username/email
     return formData.password === retyped
@@ -67,52 +79,57 @@ export default function EditAccountPage() {
 
     if (Object.values(formData).every((value) => value === "")) {
         setFormError(true);
-        setFormErrorMsg("No fields have been filled")
         return false;
     }
+
+    // iterate through the data
+    for (const [key, value] of Object.entries(formData)) {
+      console.log(key, value);
+      if (value !== "" && !validateField(value)) {
+          setWhitespaceError(true);
+          return false;
+      }
+    };
 
     return validatePassword();  
   };
 
+  // handles submission of registration details
   const handleSubmit = async (e: React.FormEvent) => {
+    // prevent the page from being refreshed automatically
     e.preventDefault();
+
+    // restore states to assume there is no problem
     setFormError(false);
     setPwError(false);
-    console.log("Is this running");
-    // if the form has been validated, the formError state can be updated to reflect this
+    setSubmissionError(false);
+    setWhitespaceError(false);
+    
+    // if the form is valid, its contents can be used in an edit attempt
     if (validateForm()) {
       try {
-        console.log("post");
+        // POST request for registration attempt
           const res = await fetch("/api/me", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
           });
-          
-          if (res.ok) {
-            setIsSubmitted(true);
-            router.push("/account?updated=true");
-          } else {
-            let data;
-            try {
-              data = await res.json();
-            } catch (jsonErr) {
-              console.error("Could not parse JSON:", jsonErr);
-              data = { error: "Unknown error" };
-            }
-          }
-        } catch (err) {
-          console.error("Error submitting form:", err);
-          setFormError(true);
+        
+        // if the registration is successful, move the user to the login page
+        if (res.ok) {
+            router.push("/account?updated=true");        // otherwise, the account could not be created
+        } else {
+          setSubmissionError(true);
         }
+      } catch (err) {
+        setFormError(true);
+      }
 
-    // otherwise, there has been an error
+    // otherwise, there has been an error in the form
     } else {
-      console.log("mistake");
+      // check if the passwords are mismatched
       if (!validatePassword()) {
-        console.log("invalid pw");
         setPwError(true);
-        setFormErrorMsg("Passwords do not match")
       }
       setFormError(true);
     }
@@ -150,7 +167,10 @@ export default function EditAccountPage() {
       </form>
 
         {formError && (
-          <p className="text-red-500 text-sm mb-4">{formErrorMsg}</p>
+          <p className="text-red-500 text-sm mb-4">Invalid details</p>
+        )}
+        {submissionError && (
+          <p className="text-red-500 text-sm mb-4">Unable to update account</p>
         )}
       </> ) : (
       <div className="flex justify-center items-center h-screen">

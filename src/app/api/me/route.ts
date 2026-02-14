@@ -18,12 +18,11 @@ export async function GET() {
   // verify the user's details
   const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
     userId: number;
-    username: string;
   };
 
   // check if information about the user can be found
   const result = await pool.query(
-    "SELECT email FROM users WHERE id = $1",
+    "SELECT username, email FROM users WHERE id = $1",
     [decoded.userId]
   );
 
@@ -35,7 +34,7 @@ export async function GET() {
   return NextResponse.json({
     loggedIn: true,
     userId: decoded.userId,
-    username: decoded.username,
+    username: result.rows[0].username,
     email: result.rows[0].email,
   });
 }
