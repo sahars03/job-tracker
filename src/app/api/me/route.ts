@@ -41,62 +41,57 @@ export async function GET() {
 
 // PUT for updating the user's information
 export async function PUT(req: Request) {
-    try {
+  try {
+    // check the user who has logged in
     const cookieStore = await cookies();
     const token = cookieStore.get("auth")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({error: "Not authenticated" }, {status: 401});
     }
 
+    // verify the user's details
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
 
+    // new account information
     const { username, email, password } = await req.json();
 
+    // stores the fields to update and their values
     const updates: string[] = [];
     const values: any[] = [];
-
-    // username
-    console.log("USERNAME")
+    
+    // check if the username is being changed
     if (username && username.trim() !== "") {
       values.push(username);
       updates.push(`username = $${values.length}`);
     }
 
-    // email
-      console.log("USERNAME")
-
+    // check if the email is being changed
     if (email && email.trim() !== "") {
       values.push(email);
       updates.push(`email = $${values.length}`);
     }
 
+    // check if the password is being changed
     if (password && password.trim() !== "") {
       const hashedPassword = await bcrypt.hash(password, 10);
       values.push(hashedPassword);
       updates.push(`password_hash = $${values.length}`);
     }
 
-    for (let i = 0; i < values.length; i++) {
-      console.log(values[i]);
-    }
-    console.log("!");
-    
-    // nothing to update
+    // check if there is nothing to update
     if (updates.length === 0) {
-          console.log("No fields to update");
+      console.log("No fields to update");
 
-      return NextResponse.json(
-        { error: "No fields to update" },
-        { status: 400 }
-      );
+      return NextResponse.json({error: "No fields to update"}, {status: 400});
     }
 
-    // WHERE clause
+    // add the user ID to the values required for the query
     values.push(decoded.userId);
-
+  
+    // build the query using the fields and corresponding values 
     const query = `
       UPDATE users
       SET ${updates.join(", ")}
@@ -104,39 +99,40 @@ export async function PUT(req: Request) {
       RETURNING username, email
     `;
 
+    // execute the query
     const result = await pool.query(query, values);
 
     return NextResponse.json({ user: result.rows[0] }, {status: 200});
   } catch (err) {
-    console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
+// DELETE for deleting the user's account
 export async function DELETE(req: Request) {
-
-    try {
+  try {
+    // check the user who has logged in
     const cookieStore = await cookies();
     const token = cookieStore.get("auth")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({error: "Not authenticated" }, {status: 401});
     }
 
+    // verify the user's details
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
 
+    // query for deleting the user
     const result = await pool.query(
       "DELETE FROM users WHERE id = $1",
       [decoded.userId]
     );
 
-    console.log("deleted!");
-
     return NextResponse.json({status: 200});
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({error: "Server error"}, {status: 500});
   }
 }

@@ -95,7 +95,7 @@ export default function LoginPage() {
   return (
     <div className="font-sans min-h-screen flex flex-col items-center pt-10">
       {registrationSuccess && (
-        <div className="fixed bottom centre z-50 bg-gray-300 border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
+        <div className="fixed bottom centre z-50 bg-[#82b1b1] border-black text-white px-4 py-3 rounded shadow-lg animate-fade-in">
           Account created
         </div>
       )}

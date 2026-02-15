@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 
 const Navbar = () => {
+  // login status for determining what is displayed in the navigation bar
   const { loggedIn, loading, refreshAuth } = useAuth();
   const router = useRouter();
 
@@ -16,27 +17,24 @@ const Navbar = () => {
 
       {!loading && (
         <div className="flex gap-6 items-center">
-          {!loggedIn ? (
-            <>
-              <Link href="/register">Register</Link>
-              <Link href="/login">Login</Link>
-            </>
-          ) : (
-            <>
-              <Link href="/applicationlist">Applications</Link>
-              <Link href="/addnewjob">New</Link>
-              <Link href="/account">Account</Link>
-              <button
-                onClick={async () => {
-                  await fetch("/api/logout", { method: "POST" });
-                  await refreshAuth();
-                  router.push("/login");
-                }}
-              >
-                Logout
-              </button>
-            </>
-          )}
+          {!loggedIn ? ( <>
+            <Link href="/register">Register</Link>
+            <Link href="/login">Login</Link>
+          </> ) : ( <>
+            <Link href="/applicationlist">Applications</Link>
+            <Link href="/addnewjob">New</Link>
+            <Link href="/account">Account</Link>
+            <button
+              onClick={async () => {
+                await fetch("/api/logout", { method: "POST" });
+                await refreshAuth();
+                router.push("/login");
+              }}
+            >
+              Logout
+            </button>
+          </> )
+          }
         </div>
       )}
     </nav>

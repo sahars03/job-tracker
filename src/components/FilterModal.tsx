@@ -11,7 +11,7 @@ type Props = {
   onClose: () => void;
 };
 
-export default function FilterModal({ isOpen, onApply, onClose }: Props) {
+export default function FilterModal({isOpen, onApply, onClose}: Props) {
   // draft filters for when the filters are in the process of being set
   const [draftFilters, setDraftFilters] = useState<ApplicationFilters>({
     workSetting: { inperson: false, hybrid: false, remote: false },

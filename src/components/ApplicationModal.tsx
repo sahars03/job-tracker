@@ -2,14 +2,13 @@ import { JobApplication } from "@/src/types/JobApplication";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-interface ApplicationModalProps {
+interface Props {
   isOpen: boolean;
   selectedApp: JobApplication;
   onClose: () => void;
 }
 
-const ApplicationModal = ({isOpen, selectedApp, onClose}: ApplicationModalProps) => {
-  
+export default function ApplicationModal({isOpen, selectedApp, onClose}: Props) {
   const router = useRouter();
 
   // state for when the user is asked if they would like to delete the application
@@ -123,5 +122,3 @@ const ApplicationModal = ({isOpen, selectedApp, onClose}: ApplicationModalProps)
     </div>
   );
 };
-
-export default ApplicationModal;

@@ -9,19 +9,23 @@ type AuthContextType = {
   refreshAuth: () => Promise<void>;
 };
 
+// context
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  // state for tracking the information from the type
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // checks the login status of the user
   const refreshAuth = async () => {
     try {
       const res = await fetch("/api/me", {
         credentials: "include",
       });
 
+      // set the information if it is retrieved
       if (res.ok) {
         const data = await res.json();
         setLoggedIn(true);
@@ -51,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// allows authemtication information (i.e. type data) to be accessed easily
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");

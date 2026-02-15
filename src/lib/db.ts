@@ -1,5 +1,7 @@
 import { Pool } from "pg";
 
+// databasr connection
+
 const pool = new Pool({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
