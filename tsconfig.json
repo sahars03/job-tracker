@@ -19,9 +19,9 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",  // i added this 10-12-2025
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"] // originally ./src/* but src is not the real root
+      "@/*": ["./*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
