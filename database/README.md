@@ -1,3 +1,3 @@
 ## SCHEMA
 
-This is how the schema is structured.
+Run the contents of schema.sql once to set up the database. 

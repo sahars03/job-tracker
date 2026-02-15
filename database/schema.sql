@@ -1,4 +1,6 @@
-/* CREATE DATABASE job_tracker;
+/* FOR RUNNING ON SETUP ONLY
+
+CREATE DATABASE job_tracker;
 
 \c job_tracker */
 
