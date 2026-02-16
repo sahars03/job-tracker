@@ -14,12 +14,12 @@ export default function WelcomePage() {
 
     // if the user is logged in, they start on their application list 
     if (loggedIn) {
-      router.push("/applicationlist");
+      router.replace("/applicationlist");
     // otherwise, the user must log in to use the application
     } else {
-      router.push("/login");
+      router.replace("/login");
     }
-  }, [loggedIn, loading, router]);
+  }, [loading, loggedIn, router]);
 
   // loading
   return (

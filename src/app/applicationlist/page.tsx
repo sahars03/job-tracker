@@ -47,6 +47,11 @@ export default function ApplicationListPage() {
     stagereached: "",
   };
 
+  // checks if any filters have been set
+  const compareFilters = () => {
+    return JSON.stringify(filters) === JSON.stringify(DEFAULT_FILTERS);
+  };
+
   // state variables for holding filter information
   const [filters, setFilters] = useState<ApplicationFilters>(DEFAULT_FILTERS);
   const [showFilter, setShowFilter] = useState(false);
@@ -204,7 +209,7 @@ export default function ApplicationListPage() {
       setApplications(data.applications);
       setLoaded(true);
 
-      if (applications.length === 0) {
+      if (data.applications.length === 0 && !compareFilters()) {
         setEmptyFilter(true);
       }
 
