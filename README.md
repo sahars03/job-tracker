@@ -62,3 +62,16 @@ npm run dev
 ```
 
 #### 7. open the link `http://localhost:3000` to use the application
+
+## Screenshots
+
+![Register](/assets/images/Register.png "Account registration.")
+
+![Account](/assets/images/Account.png "Account details.")
+
+![Application list](/assets/images/Application%20list.png "List of applications. Hovering over an application changes the colour of the table row.")
+
+![Application details](/assets/images/Application%20details.png "Details of an application when its row is clicked on in the table.")
+
+![Edit application](/assets/images/Edit%20application.png "Editing an existing application. The fields that were already filled out are prepopulated.")
+
